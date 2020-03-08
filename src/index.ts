@@ -25,6 +25,8 @@ function createDependencyProxyObject(proxifiedObject: any) {
   return new Proxy(proxifiedObject, {
     get(target: any, propKey: string) {
 
+      console.log(`Get property: `, propKey);
+
       const result = Reflect.get(target, propKey);
 
       // not injectable property
@@ -39,6 +41,9 @@ function createDependencyProxyObject(proxifiedObject: any) {
 
       // try to resolve dependency if possible
       const designType = Reflect.getMetadata("design:type", target, propKey);
+
+      console.log(`HERE: ${propKey} --- ${designType}`);
+
       result.resolve(designType, true);
 
       if (!result.isResolved()) {
@@ -50,6 +55,22 @@ function createDependencyProxyObject(proxifiedObject: any) {
   })
 }
 
+/**
+ * Copies metadata from source to destination function
+ * @param source
+ * @param destination
+ */
+function copyFunctionMetadata(source: Function, destination: Function) {
+  destination.prototype = source.prototype;
+  Object.defineProperty(destination, 'name', {
+    writable: false,
+    value: source.name,
+  });
+  Object.defineProperty(destination, 'length', {
+    writable: false,
+    value: source.length,
+  });
+}
 
 
 function Injectable(target: any) {
@@ -79,11 +100,7 @@ function Injectable(target: any) {
   }
 
   // copy metadata
-  newCtor.prototype = original.prototype;
-  Object.defineProperty(newCtor, 'name', {
-    writable: false,
-    value: original.name,
-  })
+  copyFunctionMetadata(original, newCtor);
 
   // return new constructor (will override original)
   return newCtor;
@@ -298,8 +315,9 @@ class Dependency {
     }
 
     const result = new ctor(...dependencies);
+    const proxified = createDependencyProxyObject(result);
 
-    return createDependencyProxyObject(result);
+    this.setValue(proxified);
   }
 
   public isResolved() {
@@ -351,7 +369,7 @@ class Dependency_1 {
 @Injectable
 class Dependency_2 {
 
-  public constructor(private dep_1: Dependency_1) {}
+  public constructor(public dep_1: Dependency_1) {}
 
   public sayHello() {
     this.dep_1.sayHello();
@@ -359,14 +377,21 @@ class Dependency_2 {
   }
 }
 
-const container = new Container();
 
-container.bind(Dependency_1);
-container.bind(Dependency_2);
+function main() {
 
-const dep_2 = container.getValue(Dependency_2);
+  const container = new Container();
 
-console.log(dep_2);
+  container.bind(Dependency_1);
+  container.bind(Dependency_2);
 
-// TODO
-dep_2.sayHello();
+  const dep_2 = container.getValue(Dependency_2);
+
+  console.log(dep_2);
+
+  // TODO
+  dep_2.sayHello();
+}
+
+
+main();
