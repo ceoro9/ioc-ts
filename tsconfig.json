@@ -1,0 +1,16 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+      "target": "ES2016",
+      "sourceMap": false,
+      "module": "commonjs",
+      "esModuleInterop": true,
+      "outDir": "build",
+      "moduleResolution": "node",
+      "allowSyntheticDefaultImports": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true
+    },
+}
