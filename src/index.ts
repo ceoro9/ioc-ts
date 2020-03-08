@@ -7,7 +7,7 @@ const InjectableKey = Symbol('INJECTABLE');
 class BaseDependecyException {}
 
 
-class DependecyAlreadBinded extends BaseDependecyException {}
+class DependecyAlreadyBinded extends BaseDependecyException {}
 
 
 class UnresolvedDependency extends BaseDependecyException {
@@ -126,7 +126,18 @@ class Container {
   /**
    * Get dependency by name
    */
-  public getDependecy(name: string) {
+  public getDependency(name: string) : Dependency;
+  public getDependency(ctor: ConstructorT) : Dependency;
+  public getDependency(obj: any) {
+
+    let name;
+
+    if (typeof obj === 'string') {
+      name = obj;
+    } else if (typeof obj === 'function') {
+      name = obj.name;
+    }
+
     return this.dependencyInstances[name];
   }
 
@@ -140,7 +151,7 @@ class Container {
 
   private checkDependencyName(name: string) {
     if (this.dependencyConstructors[name]) {
-      throw new DependecyAlreadBinded();
+      throw new DependecyAlreadyBinded();
     }
   }
 
@@ -168,7 +179,7 @@ class Dependency {
   private name?: string;
   private ctor?: ConstructorT;
   private readonly container: Container;
-  private value: any;
+  private value?: any;
 
   public constructor(name: string, ctor: ConstructorT, container: Container) {
     this.name = name;
@@ -180,7 +191,7 @@ class Dependency {
   public resolve(ctor: ConstructorT) {
 
     // look up in container
-    const dependency = this.container.getDependecy(ctor.name);
+    const dependency = this.container.getDependency(ctor.name);
 
     if (dependency && dependency.isResolved()) {
       const value = dependency.getValue();
@@ -188,19 +199,14 @@ class Dependency {
       return value;
     }
 
+    dependency
+      .setConstructor(ctor)
+      .setName(ctor.name);
 
     // we got entity with zero dependencies
     if (ctor.length == 0) {
-
       const value = new ctor();
-
-      if (!dependency.isResolved()) {
-        dependency
-          .setValue(value)
-          .setConstructor(ctor)
-          .setName(ctor.name);
-      }
- 
+      dependency.setValue(value);
       return value;
     }
 
@@ -253,20 +259,33 @@ class Dependency {
 }
 
 
-new Container();
-
-
 @Injectable
-class CustomMap {
-
-  public constructor(private name: string) {}
+class Dependency_1 {
 
   public sayHello() {
-    console.log(this.name);
+    console.log('Hello_1');
   }
-
 }
 
 
-const map = new CustomMap('Roman');
-map.sayHello();
+@Injectable
+class Dependency_2 {
+
+  public constructor(private dep_1: Dependency_1) {}
+
+  public sayHello() {
+    this.dep_1.sayHello();
+    console.log('Hello_2');
+  }
+}
+
+
+const container = new Container();
+
+container.selfBind(Dependency_1);
+container.selfBind(Dependency_2);
+
+const dep_2 = container.getDependency(Dependency_2.name);
+
+// TODO
+dep_2.getValue().sayHello();
