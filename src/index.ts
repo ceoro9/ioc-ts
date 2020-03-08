@@ -6,11 +6,11 @@ const InjectableKey = Symbol('INJECTABLE');
 
 class BaseDependecyException {}
 
+class DependecyAlreadyBindedException extends BaseDependecyException {}
 
-class DependecyAlreadyBinded extends BaseDependecyException {}
+class UnknownDependencyException extends BaseDependecyException {}
 
-
-class UnresolvedDependency extends BaseDependecyException {
+class UnresolvedDependencyException extends BaseDependecyException {
 
   public constructor(public dependecy: Dependency) {
     super();
@@ -18,7 +18,7 @@ class UnresolvedDependency extends BaseDependecyException {
 }
 
 
-type ConstructorT = { new (...args: any[]): any };
+type ConstructorT<R = any> = { new (...args: any[]): R };
 
 
 function createDependencyProxyObject(proxifiedObject: any) {
@@ -39,10 +39,10 @@ function createDependencyProxyObject(proxifiedObject: any) {
 
       // try to resolve dependency if possible
       const designType = Reflect.getMetadata("design:type", target, propKey);
-      result.resolve(designType);
+      result.resolve(designType, true);
 
       if (!result.isResolved()) {
-        throw new UnresolvedDependency(result);
+        throw new UnresolvedDependencyException(result);
       }
 
       return result.getValue();
@@ -78,8 +78,12 @@ function Injectable(target: any) {
     return construct(original, args);
   }
 
-  // copy prototype so intanceof operator still works
+  // copy metadata
   newCtor.prototype = original.prototype;
+  Object.defineProperty(newCtor, 'name', {
+    writable: false,
+    value: original.name,
+  })
 
   // return new constructor (will override original)
   return newCtor;
@@ -92,32 +96,41 @@ function Injectable(target: any) {
 class Container {
 
   private dependencyConstructors: {[name: string]: ConstructorT};
-  private dependencyInstances: {[name: string]: Dependency};
+  private dependencyValues: {[name: string]: any};
 
   public constructor() {
     this.dependencyConstructors = {};
-    this.dependencyInstances    = {}; 
+    this.dependencyValues = {}; 
   }
 
   /**
    * Bind dependency
    */
-  public bind(name: string, ctor: ConstructorT) {
+  public bind(ctor: ConstructorT): void;
+  public bind(name: string, ctor: ConstructorT): void;
+  public bind(arg_1: any, arg_2?: any) {
+
+    let ctor: ConstructorT, name: string;
+
+    // 1st overloaded case
+    if (typeof arg_1 === 'function') {
+      ctor = arg_1;
+      name = ctor.name;
+    }
+
+    // 2nd overloaded case
+    if (typeof arg_1 === 'string') {
+      name = arg_1;
+      ctor = arg_2; 
+    }
+
     this.checkDependencyName(name);
-    this.addDependecy(name, ctor);
+    this.addDependecyConstructor(name, ctor);
+    this.addDependencyValue(name, ctor);
   }
 
   /**
-   * Self-bind dependency
-   */
-  public selfBind(ctor: ConstructorT) {
-    const dependencyName = ctor.name;
-    this.checkDependencyName(dependencyName);
-    this.addDependecy(dependencyName, ctor);
-  }
-
-  /**
-   * Get dependency ctor by name
+   * Get dependency constructor by name
    */
   public getConstructor(name: string) {
     return this.dependencyConstructors[name];
@@ -126,9 +139,9 @@ class Container {
   /**
    * Get dependency by name
    */
-  public getDependency(name: string) : Dependency;
-  public getDependency(ctor: ConstructorT) : Dependency;
-  public getDependency(obj: any) {
+  public getValue(name: string): any;
+  public getValue(ctor: ConstructorT): any;
+  public getValue(obj: any) {
 
     let name;
 
@@ -138,7 +151,32 @@ class Container {
       name = obj.name;
     }
 
-    return this.dependencyInstances[name];
+    const result = this.dependencyValues[name];
+
+    if (!result) {
+      throw new UnknownDependencyException();
+    }
+
+    // not yet resolved
+    if (result instanceof Dependency) {
+
+      // try to resolve
+      const designTypeCtor = this.getConstructor(name);
+      result.resolve(designTypeCtor, false);
+
+      if (!result.isResolved()) {
+        throw new UnresolvedDependencyException(result);
+      }
+
+      // save value
+      const value = result.getValue();
+      this.dependencyValues[name] = value;
+
+      return value;
+    }
+
+    // already resolved
+    return result;
   }
 
   /**
@@ -146,28 +184,68 @@ class Container {
    */
   public remove(name: string) {
     delete this.dependencyConstructors[name];
-    delete this.dependencyInstances[name]; // TODO: call destructor
+    delete this.dependencyValues[name]; // TODO: call destructor
   }
 
   private checkDependencyName(name: string) {
     if (this.dependencyConstructors[name]) {
-      throw new DependecyAlreadyBinded();
+      throw new DependecyAlreadyBindedException();
     }
-  }
-
-  private addDependecy(name: string, ctor: ConstructorT) {
-    this.addDependecyConstructor(name, ctor);
-    this.addDependecyInstance(name, ctor);
   }
 
   private addDependecyConstructor(name: string, ctor: ConstructorT) {
     this.dependencyConstructors[name] = ctor;
   }
 
-  private addDependecyInstance(name: string, ctor: ConstructorT) {
-    this.dependencyInstances[name] = new Dependency(name, ctor, this);
+  /**
+   * Adds dependency value to container
+   */
+  public addDependencyValue(ctor: ConstructorT): void;
+  public addDependencyValue(name: string, ctor: ConstructorT): void;
+  public addDependencyValue(arg_1: any, arg_2?: any) {
+
+    let ctor, name;
+
+    // 1st overloaded case
+    if (typeof arg_1 === 'function') {
+      ctor = arg_1;
+      name = ctor.name;
+    }
+
+    // 2nd overloaded case
+    if (typeof arg_1 === 'string') {
+      name = arg_1;
+      ctor = arg_2;
+    }
+
+    this.dependencyValues[name] = new Dependency(name, ctor, this);
   }
 
+  /**
+   * Replaces dependency with value
+   */
+  public setDependencyValue(name: string, value: any): void;
+  public setDependencyValue(ctor: ConstructorT, value: any): void;
+  public setDependencyValue(identifier: any, value: any) {
+
+    let name: string;
+
+    // 1st overloaded case
+    if (typeof identifier === 'string') {
+      name = identifier;
+    }
+
+    // 2nd overloaded case
+    if (typeof identifier === 'function') {
+      name = identifier.name;
+    }
+
+    if (!this.dependencyValues[name]) {
+      throw new UnknownDependencyException();
+    }
+
+    this.dependencyValues[name] = value;
+  }
 }
 
 
@@ -188,25 +266,27 @@ class Dependency {
     this.value = void 0;
   }
 
-  public resolve(ctor: ConstructorT) {
+  public resolve(ctor: ConstructorT, isLookUpInContainer: boolean) {
 
-    // look up in container
-    const dependency = this.container.getDependency(ctor.name);
-
-    if (dependency && dependency.isResolved()) {
-      const value = dependency.getValue();
-      this.setValue(value);
-      return value;
-    }
-
-    dependency
+    // set dependency data
+    this
       .setConstructor(ctor)
       .setName(ctor.name);
 
-    // we got entity with zero dependencies
-    if (ctor.length == 0) {
+    // look up in container
+    if (isLookUpInContainer) {
+      const value = this.container.getValue(ctor);
+      if (!(value instanceof Dependency)) {
+        this.setValue(value);
+        return value;
+      }
+    }
+    
+    // base case
+    if (ctor.length === 0) {
       const value = new ctor();
-      dependency.setValue(value);
+      this.setValue(value);
+      this.container.setDependencyValue(ctor, value);
       return value;
     }
 
@@ -279,13 +359,14 @@ class Dependency_2 {
   }
 }
 
-
 const container = new Container();
 
-container.selfBind(Dependency_1);
-container.selfBind(Dependency_2);
+container.bind(Dependency_1);
+container.bind(Dependency_2);
 
-const dep_2 = container.getDependency(Dependency_2.name);
+const dep_2 = container.getValue(Dependency_2);
+
+console.log(dep_2);
 
 // TODO
-dep_2.getValue().sayHello();
+dep_2.sayHello();
