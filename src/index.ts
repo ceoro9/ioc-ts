@@ -1,8 +1,17 @@
 import 'reflect-metadata';
 
 
+/**
+ * Constants
+ * TODO: move to separate file
+ */
 const InjectableKey = Symbol('INJECTABLE');
 
+
+/**
+ * Exceptions
+ * TODO: move to separate file
+ */
 
 class BaseDependecyException {}
 
@@ -18,14 +27,20 @@ class UnresolvedDependencyException extends BaseDependecyException {
 }
 
 
+/**
+ * Types
+ * TODO: move to separate file
+ */
 type ConstructorT<R = any> = { new (...args: any[]): R };
 
 
+/**
+ * Core entities
+ * TODO: move to separate file
+ */
 function createDependencyProxyObject(proxifiedObject: any) {
   return new Proxy(proxifiedObject, {
     get(target: any, propKey: string) {
-
-      console.log(`Get property: `, propKey);
 
       const result = Reflect.get(target, propKey);
 
@@ -41,8 +56,6 @@ function createDependencyProxyObject(proxifiedObject: any) {
 
       // try to resolve dependency if possible
       const designType = Reflect.getMetadata("design:type", target, propKey);
-
-      console.log(`HERE: ${propKey} --- ${designType}`);
 
       result.resolve(designType, true);
 
@@ -157,7 +170,7 @@ class Container {
    * Get dependency by name
    */
   public getValue(name: string): any;
-  public getValue(ctor: ConstructorT): any;
+  public getValue<T>(ctor: ConstructorT<T>): T;
   public getValue(obj: any) {
 
     let name;
@@ -366,14 +379,57 @@ class Dependency_1 {
 }
 
 
+/**
+ * Injection decorator
+ */
+
+// property injection
+function Inject(target: Object, propertyKey: string | symbol): void;
+
+// constructor injection
+function Inject(target: Object, propertyKey: string | symbol, parameterIndex: number): void;
+
+function Inject(_target: Object, _propertyKey: string | symbol, _parameterIndex?: number) {
+  // TODO
+}
+
+
 @Injectable
 class Dependency_2 {
 
-  public constructor(public dep_1: Dependency_1) {}
+  @Inject
+  public dep_1: Dependency_1
+
+  public constructor(dep_1: Dependency_1) {
+    this.dep_1 = dep_1;
+  }
 
   public sayHello() {
     this.dep_1.sayHello();
     console.log('Hello_2');
+  }
+}
+
+
+@Injectable
+class Dependency_3 {
+
+  @Inject
+  public dep_1: Dependency_1;
+  
+  @Inject
+  public dep_2: Dependency_2;
+
+  public constructor(dep_1: Dependency_1, dep_2: Dependency_2) {
+    this.dep_1 = dep_1;
+    this.dep_2 = dep_2;
+  }
+
+  public sayBye() {
+    console.log('--- START Dependency_3 ---');
+    this.dep_1.sayHello();
+    this.dep_2.sayHello();
+    console.log('--- END Dependency_3 ---');
   }
 }
 
@@ -384,13 +440,17 @@ function main() {
 
   container.bind(Dependency_1);
   container.bind(Dependency_2);
+  container.bind(Dependency_3);
 
-  const dep_2 = container.getValue(Dependency_2);
+  // const dep_1 = container.getValue(Dependency_1);
+  // const dep_2 = container.getValue(Dependency_2);
 
-  console.log(dep_2);
+  // dep_1.sayHello();
+  // console.log('--------------');
+  // dep_2.sayHello();
 
-  // TODO
-  dep_2.sayHello();
+  const dep_3 = container.getValue(Dependency_3);
+  dep_3.sayBye();
 }
 
 
