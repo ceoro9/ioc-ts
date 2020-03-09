@@ -412,29 +412,22 @@ class Dependency_2 {
   }
 }
 
-function resolveDependecy(container: Container, dependencyName?: string) {
+function resolvePropertyDependecy(container: Container, dependencyName?: string) {
 
   return function (target: any, key: string) {
 
     const dependencyIdentifier = dependencyName ?? Reflect.getMetadata("design:type", target, key);
+
     if (!dependencyIdentifier) {
       throw new InvalidDependencyIdentifier();
     }
 
-    const resolvedValue = container.getValue(dependencyIdentifier);
-
-    // Delete current property
-    if (delete target[key]) {
-  
-      // Create new property with resolved dependency
-      Object.defineProperty(target, key, {
-        enumerable: true,
-        configurable: true,
-        writable: false,
-        value: resolvedValue,
-      });
-    }
-  }
+    return {
+      get() {
+        return container.getValue(dependencyIdentifier);
+      },
+    } as any;
+  };
 }
 
 
@@ -447,11 +440,6 @@ class A {
 
 const container = new Container();
 
-container.bind(A);
-container.bind(Dependency_1);
-container.bind(Dependency_2);
-
-
 
 @Injectable
 class Dependency_3 {
@@ -462,7 +450,7 @@ class Dependency_3 {
   @Inject
   public dep_2: Dependency_2;
 
-  @resolveDependecy(container)
+  @resolvePropertyDependecy(container)
   public nice: A;
 
   public constructor(dep_1: Dependency_1, dep_2: Dependency_2) {
@@ -481,6 +469,9 @@ class Dependency_3 {
 
 function main() {
 
+  container.bind(A);
+  container.bind(Dependency_1);
+  container.bind(Dependency_2);
   container.bind(Dependency_3);
 
   // const dep_1 = container.getValue(Dependency_1);
