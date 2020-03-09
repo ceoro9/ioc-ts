@@ -26,6 +26,8 @@ class UnresolvedDependencyException extends BaseDependecyException {
   }
 }
 
+class InvalidDependencyIdentifier extends BaseDependecyException {}
+
 
 /**
  * Types
@@ -126,7 +128,7 @@ function Injectable(target: any) {
 class Container {
 
   private dependencyConstructors: {[name: string]: ConstructorT};
-  private dependencyValues: {[name: string]: any};
+  public dependencyValues: {[name: string]: any};
 
   public constructor() {
     this.dependencyConstructors = {};
@@ -410,6 +412,46 @@ class Dependency_2 {
   }
 }
 
+function resolveDependecy(container: Container, dependencyName?: string) {
+
+  return function (target: any, key: string) {
+
+    const dependencyIdentifier = dependencyName ?? Reflect.getMetadata("design:type", target, key);
+    if (!dependencyIdentifier) {
+      throw new InvalidDependencyIdentifier();
+    }
+
+    const resolvedValue = container.getValue(dependencyIdentifier);
+
+    // Delete current property
+    if (delete target[key]) {
+  
+      // Create new property with resolved dependency
+      Object.defineProperty(target, key, {
+        enumerable: true,
+        configurable: true,
+        writable: false,
+        value: resolvedValue,
+      });
+    }
+  }
+}
+
+
+@Injectable
+class A {
+  public click() {
+    console.log('CLICL FROM A');
+  }
+}
+
+const container = new Container();
+
+container.bind(A);
+container.bind(Dependency_1);
+container.bind(Dependency_2);
+
+
 
 @Injectable
 class Dependency_3 {
@@ -419,6 +461,9 @@ class Dependency_3 {
   
   @Inject
   public dep_2: Dependency_2;
+
+  @resolveDependecy(container)
+  public nice: A;
 
   public constructor(dep_1: Dependency_1, dep_2: Dependency_2) {
     this.dep_1 = dep_1;
@@ -436,10 +481,6 @@ class Dependency_3 {
 
 function main() {
 
-  const container = new Container();
-
-  container.bind(Dependency_1);
-  container.bind(Dependency_2);
   container.bind(Dependency_3);
 
   // const dep_1 = container.getValue(Dependency_1);
@@ -450,7 +491,7 @@ function main() {
   // dep_2.sayHello();
 
   const dep_3 = container.getValue(Dependency_3);
-  dep_3.sayBye();
+  dep_3.nice.click();
 }
 
 
