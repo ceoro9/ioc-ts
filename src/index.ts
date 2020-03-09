@@ -7,6 +7,8 @@ import 'reflect-metadata';
  */
 const InjectableKey = Symbol('INJECTABLE');
 
+const InjectableContainerKey = Symbol('INJECTABLE_CONTAINER_KEY');
+
 
 /**
  * Exceptions
@@ -27,6 +29,10 @@ class UnresolvedDependencyException extends BaseDependecyException {
 }
 
 class InvalidDependencyIdentifier extends BaseDependecyException {}
+
+class ContainerNotBinded extends BaseDependecyException {}
+
+class ContainerAlreadyBinded extends BaseDependecyException {}
 
 
 /**
@@ -156,6 +162,7 @@ class Container {
       ctor = arg_2; 
     }
 
+    this.bindContainerReference(ctor);
     this.checkDependencyName(name);
     this.addDependecyConstructor(name, ctor);
     this.addDependencyValue(name, ctor);
@@ -219,6 +226,9 @@ class Container {
     delete this.dependencyValues[name]; // TODO: call destructor
   }
 
+  /**
+   * Checks if dependency with provided identifiers exists in container
+   */
   private checkDependencyName(name: string) {
     if (this.dependencyConstructors[name]) {
       throw new DependecyAlreadyBindedException();
@@ -227,6 +237,20 @@ class Container {
 
   private addDependecyConstructor(name: string, ctor: ConstructorT) {
     this.dependencyConstructors[name] = ctor;
+  }
+
+  /**
+   * Saves container reference to constructor's prototype
+   */
+  private bindContainerReference(ctor: ConstructorT) {
+
+    const ctorPrototype = ctor.prototype as any;
+
+    if (ctorPrototype[InjectableContainerKey]) {
+      throw new ContainerAlreadyBinded();
+    }
+
+    ctorPrototype[InjectableContainerKey] = this;
   }
 
   /**
@@ -412,7 +436,7 @@ class Dependency_2 {
   }
 }
 
-function resolvePropertyDependecy(container: Container, dependencyName?: string) {
+function InjectProperty({ container, dependencyName }: { container?: Container, dependencyName?: string } = {}) {
 
   return function (target: any, key: string) {
 
@@ -424,7 +448,13 @@ function resolvePropertyDependecy(container: Container, dependencyName?: string)
 
     return {
       get() {
-        return container.getValue(dependencyIdentifier);
+        const sourceContainer = container ?? target[InjectableContainerKey];
+
+        if (!sourceContainer) {
+          throw new ContainerNotBinded();
+        }
+
+        return sourceContainer.getValue(dependencyIdentifier);
       },
     } as any;
   };
@@ -444,19 +474,14 @@ const container = new Container();
 @Injectable
 class Dependency_3 {
 
-  @Inject
+  @InjectProperty()
   public dep_1: Dependency_1;
   
-  @Inject
+  @InjectProperty()
   public dep_2: Dependency_2;
 
-  @resolvePropertyDependecy(container)
+  @InjectProperty()
   public nice: A;
-
-  public constructor(dep_1: Dependency_1, dep_2: Dependency_2) {
-    this.dep_1 = dep_1;
-    this.dep_2 = dep_2;
-  }
 
   public sayBye() {
     console.log('--- START Dependency_3 ---');
@@ -483,6 +508,8 @@ function main() {
 
   const dep_3 = container.getValue(Dependency_3);
   dep_3.nice.click();
+  console.log('===== SayBye =======');
+  dep_3.sayBye();
 }
 
 
