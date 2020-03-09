@@ -34,6 +34,8 @@ class ContainerNotBinded extends BaseDependecyException {}
 
 class ContainerAlreadyBinded extends BaseDependecyException {}
 
+class UnknowInjectionTypeException extends BaseDependecyException {}
+
 
 /**
  * Types
@@ -62,8 +64,22 @@ function createDependencyProxyObject(proxifiedObject: any) {
         return result.getValue();
       }
 
-      // try to resolve dependency if possible
-      const designType = Reflect.getMetadata("design:type", target, propKey);
+      // try to resolve dependency based on it design type
+      // TODO: create separate function to obtain design type
+      let designType;
+
+      if (result.isPropertyInjection()) {
+        designType = Reflect.getMetadata("design:type", target, propKey);
+      }
+
+      if (result.isConstructorInjection()) {
+        const dependencyParamIndex = result.getConstructorIndex();
+        designType = Reflect.getMetadata("design:paramtypes", target.constructor)[dependencyParamIndex];
+      }
+
+      if (!designType) {
+        throw new UnknowInjectionTypeException();
+      }
 
       result.resolve(designType, true);
 
@@ -313,13 +329,18 @@ class Dependency {
   private name?: string;
   private ctor?: ConstructorT;
   private readonly container: Container;
+  private readonly constructorIndex: number;
   private value?: any;
 
-  public constructor(name: string, ctor: ConstructorT, container: Container) {
+  public constructor(name: string,
+                     ctor: ConstructorT,
+                     container: Container,
+                     constructorIndex?: number) {
     this.name = name;
     this.ctor = ctor;
     this.container = container;
     this.value = void 0;
+    this.constructorIndex = constructorIndex;
   }
 
   public resolve(ctor: ConstructorT, isLookUpInContainer: boolean) {
@@ -344,12 +365,12 @@ class Dependency {
       this.setValue(value);
       this.container.setDependencyValue(ctor, value);
       return value;
-    }
+    } 
 
     // init entity with dependecies
     const dependencies = []
     for (let i = 0; i < ctor.length; ++i) {
-      const dependency = new Dependency(void 0, void 0, this.container);
+      const dependency = new Dependency(void 0, void 0, this.container, i);
       dependencies.push(dependency);
     }
 
@@ -361,6 +382,14 @@ class Dependency {
 
   public isResolved() {
     return !!this.value;
+  }
+
+  public isPropertyInjection() {
+    return this.getConstructorIndex() === void 0;
+  }
+
+  public isConstructorInjection() {
+    return this.getConstructorIndex() !== void 0;
   }
 
   public getConstructor() {
@@ -377,6 +406,10 @@ class Dependency {
 
   public getValue() {
     return this.value;
+  }
+
+  public getConstructorIndex() {
+    return this.constructorIndex;
   }
 
   public setValue(value: any) {
@@ -410,24 +443,20 @@ class Dependency_1 {
  */
 
 // property injection
-function Inject(target: Object, propertyKey: string | symbol): void;
+// function Inject(target: Object, propertyKey: string | symbol): void;
 
-// constructor injection
-function Inject(target: Object, propertyKey: string | symbol, parameterIndex: number): void;
+// // constructor injection
+// function Inject(target: Object, propertyKey: string | symbol, parameterIndex: number): void;
 
-function Inject(_target: Object, _propertyKey: string | symbol, _parameterIndex?: number) {
-  // TODO
-}
+// function Inject(_target: Object, _propertyKey: string | symbol, _parameterIndex?: number) {
+//   // TODO
+// }
 
 
 @Injectable
 class Dependency_2 {
 
-  @Inject
-  public dep_1: Dependency_1
-
-  public constructor(dep_1: Dependency_1) {
-    this.dep_1 = dep_1;
+  public constructor(private readonly dep_1: Dependency_1) {
   }
 
   public sayHello() {
@@ -468,8 +497,6 @@ class A {
   }
 }
 
-const container = new Container();
-
 
 @Injectable
 class Dependency_3 {
@@ -494,21 +521,20 @@ class Dependency_3 {
 
 function main() {
 
+  const container = new Container();
+
   container.bind(A);
   container.bind(Dependency_1);
   container.bind(Dependency_2);
   container.bind(Dependency_3);
 
-  // const dep_1 = container.getValue(Dependency_1);
-  // const dep_2 = container.getValue(Dependency_2);
-
-  // dep_1.sayHello();
-  // console.log('--------------');
-  // dep_2.sayHello();
-
+  const dep_2 = container.getValue(Dependency_2);
   const dep_3 = container.getValue(Dependency_3);
-  dep_3.nice.click();
-  console.log('===== SayBye =======');
+  
+  console.log('----- DEP_2 -----');
+  dep_2.sayHello();
+
+  console.log('----- DEP_3 ------');
   dep_3.sayBye();
 }
 
