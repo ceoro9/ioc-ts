@@ -15,4 +15,11 @@
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true,
     },
+    "include": [
+      "src/**/*",
+      "examples/**/*"
+    ],
+    "exclude": [
+      "node_modules"
+  ]
 }

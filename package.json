@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
-    "start": "node ./build/index.js"
+    "build": "./node_modules/typescript/bin/tsc"
   },
   "author": "",
   "license": "ISC",
