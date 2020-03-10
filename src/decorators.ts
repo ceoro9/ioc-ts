@@ -43,12 +43,27 @@ export function Injectable(target: any) {
 }
 
 
-/**
- * Property injection
- */
-export function InjectProperty({ container, dependencyName }: { container?: Container, dependencyName?: string } = {}) {
+// Injection function interface
+type InjectionDecorator = (dependencyName?: string, container?: Container) => Function;
 
-  return function (target: any, key: string) {
+
+export const Inject: InjectionDecorator = (dependencyName?: string, container?: Container) => {
+
+  return function(target: Object, propertyKey: string | symbol, parameterIndex?: number) {
+
+    if (parameterIndex !== undefined) {
+      return InjectConstructor(dependencyName, container)(target, propertyKey, parameterIndex);
+    }
+    else {
+      return InjectProperty(dependencyName, container)(target, propertyKey);
+    }
+  }
+}
+
+
+const InjectProperty: InjectionDecorator = (dependencyName?: string, container?: Container) => {
+
+  return function(target: any, key: string | symbol) {
 
     const dependencyIdentifier = dependencyName ?? Reflect.getMetadata("design:type", target, key);
 
@@ -71,12 +86,9 @@ export function InjectProperty({ container, dependencyName }: { container?: Cont
 }
 
 
-// TODO: property injection
-export function Inject(target: Object, propertyKey: string | symbol): void;
+const InjectConstructor: InjectionDecorator = (_dependencyName?: string, _container?: Container) => {
 
-// TODO: constructor injection
-export function Inject(target: Object, propertyKey: string | symbol, parameterIndex: number): void;
-
-export function Inject(_target: Object, _propertyKey: string | symbol, _parameterIndex?: number) {
-  // TODO
+  return function(_target: any, _key: string | symbol, _parameterIndex: number) {
+    // TODO
+  };
 }

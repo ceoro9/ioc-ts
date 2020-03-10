@@ -1,4 +1,4 @@
 import 'reflect-metadata';
 
-export { Container }                          from './container';
-export { Injectable, InjectProperty, Inject } from './decorators';
+export { Container }          from './container';
+export { Injectable, Inject } from './decorators';

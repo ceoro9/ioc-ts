@@ -1,4 +1,4 @@
-import { Injectable, InjectProperty, Container } from '../src';
+import { Injectable, Inject, Container } from '../src';
 
 
 @Injectable
@@ -35,13 +35,13 @@ class A {
 @Injectable
 class Dependency_3 {
 
-  @InjectProperty()
+  @Inject()
   public dep_1: Dependency_1;
   
-  @InjectProperty()
+  @Inject()
   public dep_2: Dependency_2;
 
-  @InjectProperty()
+  @Inject()
   public nice: A;
 
   public sayBye() {
