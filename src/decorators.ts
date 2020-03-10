@@ -52,7 +52,7 @@ export const Inject: InjectionDecorator = (dependencyName?: string, container?: 
   return function(target: Object, propertyKey: string | symbol, parameterIndex?: number) {
 
     if (parameterIndex !== undefined) {
-      return InjectConstructor(dependencyName, container)(target, propertyKey, parameterIndex);
+      InjectConstructor(dependencyName, container)(target, propertyKey, parameterIndex);
     }
     else {
       return InjectProperty(dependencyName, container)(target, propertyKey);
@@ -86,9 +86,44 @@ const InjectProperty: InjectionDecorator = (dependencyName?: string, container?:
 }
 
 
-const InjectConstructor: InjectionDecorator = (_dependencyName?: string, _container?: Container) => {
+const constructorMetadataKey = 'constructor:metadata';
 
-  return function(_target: any, _key: string | symbol, _parameterIndex: number) {
-    // TODO
+
+export interface IConstructorMetadata {
+  parameterIndex: number;
+  dependencyName?: string;
+  container?: Container;
+}
+
+
+function makeConstructorMedata(parameterIndex: number,
+                               dependencyName?: string,
+                               container?: Container): IConstructorMetadata {
+  return {
+    parameterIndex,
+    dependencyName,
+    container,
+  };
+}
+
+
+const InjectConstructor: InjectionDecorator = (dependencyName?: string, container?: Container) => {
+
+  return function(target: any, propertyKey: string | symbol, parameterIndex: number) {
+
+    const newCtorMetadata = makeConstructorMedata(parameterIndex, dependencyName, container);
+
+    const ctorMetadatas = Reflect.getMetadata(
+      constructorMetadataKey,
+      target, propertyKey
+    ) as {[key: number]: IConstructorMetadata} ?? {};
+
+    Reflect.metadata(
+      constructorMetadataKey,
+      {
+        ...ctorMetadatas,
+        [parameterIndex]: newCtorMetadata
+      }
+    )(target, propertyKey);
   };
 }

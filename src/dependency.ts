@@ -24,16 +24,16 @@ export class Dependency {
     this.constructorIndex = constructorIndex;
   }
 
-  public resolve(ctor: ConstructorT, isLookUpInContainer: boolean) {
+  public resolve(dependencyName: string, ctor: ConstructorT, isLookUpInContainer: boolean) {
 
     // set dependency data
     this
-      .setConstructor(ctor)
-      .setName(ctor.name);
+    .setConstructor(ctor)
+    .setName(dependencyName);
 
     // look up in container
     if (isLookUpInContainer) {
-      const value = this.container.getValue(ctor);
+      const value = this.container.getValue(dependencyName);
       if (!(value instanceof Dependency)) {
         this.setValue(value);
         return value;
@@ -44,14 +44,24 @@ export class Dependency {
     if (ctor.length === 0) {
       const value = new ctor();
       this.setValue(value);
-      this.container.setDependencyValue(ctor, value);
+      this.container.setDependencyValue(dependencyName, value);
       return value;
     } 
 
+    // TODO: create separate function to obtain metadata
+    const ctorMetadatas = Reflect.getMetadata('constructor:metadata', ctor);
+
     // init entity with dependecies
     const dependencies = []
-    for (let i = 0; i < ctor.length; ++i) {
-      const dependency = new Dependency(void 0, void 0, this.container, i);
+    for (let paramIndex = 0; paramIndex < ctor.length; ++paramIndex) {
+      const ctorParameterMetadata = ctorMetadatas[paramIndex] ?? {} as any;
+      // TODO: create selectors
+      const dependency = new Dependency(
+        ctorParameterMetadata['dependencyName'],
+        void 0, // TODO: make more obvious why this is undefined
+        ctorParameterMetadata['container'] ?? this.container,
+        paramIndex
+      );
       dependencies.push(dependency);
     }
 

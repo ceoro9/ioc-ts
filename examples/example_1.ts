@@ -2,6 +2,15 @@ import { Injectable, Inject, Container } from '../src';
 
 
 @Injectable
+class Dependency_0 {
+
+  public sayHello() {
+      console.log('Hello_0');
+  }
+}
+
+
+@Injectable
 class Dependency_1 {
 
   public sayHello() {
@@ -13,10 +22,11 @@ class Dependency_1 {
 @Injectable
 class Dependency_2 {
 
-  public constructor(private readonly dep_1: Dependency_1) {
-  }
+  public constructor(@Inject('Dependency_Zero') private readonly dep_0: Dependency_0,
+                     @Inject() private readonly dep_1: Dependency_1) {}
 
   public sayHello() {
+    this.dep_0.sayHello();
     this.dep_1.sayHello();
     console.log('Hello_2');
   }
@@ -58,6 +68,7 @@ function main() {
   const container = new Container();
 
   container.bind(A);
+  container.bind('Dependency_Zero', Dependency_0);
   container.bind(Dependency_1);
   container.bind(Dependency_2);
   container.bind(Dependency_3);

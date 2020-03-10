@@ -74,7 +74,7 @@ export class Container {
 
       // try to resolve
       const designTypeCtor = this.getConstructor(name);
-      result.resolve(designTypeCtor, false);
+      result.resolve(name, designTypeCtor, false);
 
       if (!result.isResolved()) {
         throw new Exceptions.UnresolvedDependencyException(result);
@@ -133,7 +133,7 @@ export class Container {
   public addDependencyValue(name: string, ctor: ConstructorT): void;
   public addDependencyValue(arg_1: any, arg_2?: any) {
 
-    let ctor, name;
+    let ctor: ConstructorT, name: string;
 
     // 1st overloaded case
     if (typeof arg_1 === 'function') {
@@ -174,5 +174,17 @@ export class Container {
     }
 
     this.dependencyValues[name] = value;
+  }
+
+  public lookUpDependencyName(lookUpCtor: ConstructorT) {
+    // TODO: make more pretty
+
+    for (const dependencyName of Object.keys(this.dependencyConstructors)) {
+      if (this.dependencyConstructors[dependencyName] === lookUpCtor) {
+        return dependencyName;
+      }
+    }
+
+    return void 0;
   }
 }

@@ -1,5 +1,6 @@
-import * as Exceptions from './exceptions';
-import { Dependency }  from './dependency';
+import * as Exceptions  from './exceptions';
+import { Dependency }   from './dependency';
+import { ConstructorT } from './types';
 
 
 export function createDependencyProxyObject(proxifiedObject: any) {
@@ -20,22 +21,30 @@ export function createDependencyProxyObject(proxifiedObject: any) {
 
       // try to resolve dependency based on it design type
       // TODO: create separate function to obtain design type
-      let designType;
+      let designType: ConstructorT, dependencyName: string;
 
       if (result.isPropertyInjection()) {
         designType = Reflect.getMetadata("design:type", target, propKey);
+        dependencyName = designType.name; // TODO
+        // get property dependency name
       }
 
       if (result.isConstructorInjection()) {
         const dependencyParamIndex = result.getConstructorIndex();
         designType = Reflect.getMetadata("design:paramtypes", target.constructor)[dependencyParamIndex];
+
+        // TODO: create selector
+        const ctorMetadatas = Reflect.getMetadata('constructor:metadata', target.constructor) ?? {};
+
+        // TODO: create selector
+        dependencyName = ctorMetadatas[dependencyParamIndex]?.dependencyName ?? designType.name;
       }
 
       if (!designType) {
         throw new Exceptions.UnknowInjectionTypeException();
       }
 
-      result.resolve(designType, true);
+      result.resolve(dependencyName, designType, true);
 
       if (!result.isResolved()) {
         throw new Exceptions.UnresolvedDependencyException(result);

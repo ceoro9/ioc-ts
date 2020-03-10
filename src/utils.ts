@@ -13,4 +13,10 @@ export function copyFunctionMetadata(source: Function, destination: Function) {
     writable: false,
     value: source.length,
   });
+  // TODO: make separate functino for this
+  // copy constructors medata
+  const ctorMetadatas = Reflect.getMetadata('constructor:metadata', source, void 0);
+  if (ctorMetadatas) {
+    Reflect.metadata('constructor:metadata', ctorMetadatas)(destination, void 0);
+  }
 }
