@@ -45,6 +45,9 @@ class A {
 @Injectable
 class Dependency_3 {
 
+  @Inject('Dependency_Zero')
+  public dep_0: Dependency_0;
+
   @Inject()
   public dep_1: Dependency_1;
   
@@ -56,6 +59,7 @@ class Dependency_3 {
 
   public sayBye() {
     console.log('--- START Dependency_3 ---');
+    this.dep_0.sayHello();
     this.dep_1.sayHello();
     this.dep_2.sayHello();
     console.log('--- END Dependency_3 ---');
