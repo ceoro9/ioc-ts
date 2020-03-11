@@ -29,13 +29,15 @@ export function createDependencyProxyObject(proxifiedObject: any) {
         dependencyName = designType.name; // TODO
         // get property dependency name
       }
-
-      if (result.isConstructorInjection()) {
-        const dependencyParamIndex  = result.getConstructorIndex();
+      else if (result.isConstructorInjection()) {
+        const dependencyParamIndex  = result.getConstructorIndex()!;
         const ctorParameterMetadata = getConstructorParameterMetadata(target.constructor, dependencyParamIndex);        
 
         designType = Reflect.getMetadata("design:paramtypes", target.constructor)[dependencyParamIndex];
         dependencyName = ctorParameterMetadata?.dependencyName ?? designType.name;
+      }
+      else {
+        throw new Exceptions.UnknowInjectionTypeException();
       }
 
       if (!designType) {

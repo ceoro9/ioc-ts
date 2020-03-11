@@ -23,14 +23,11 @@ export class Container {
 
     let ctor: ConstructorT, name: string;
 
-    // 1st overloaded case
     if (typeof arg_1 === 'function') {
       ctor = arg_1;
       name = ctor.name;
     }
-
-    // 2nd overloaded case
-    if (typeof arg_1 === 'string') {
+    else {
       name = arg_1;
       ctor = arg_2; 
     }
@@ -55,11 +52,12 @@ export class Container {
   public getValue<T>(ctor: ConstructorT<T>): T;
   public getValue(obj: any) {
 
-    let name;
+    let name: string;
 
     if (typeof obj === 'string') {
       name = obj;
-    } else if (typeof obj === 'function') {
+    }
+    else {
       name = obj.name;
     }
 
@@ -135,14 +133,11 @@ export class Container {
 
     let ctor: ConstructorT, name: string;
 
-    // 1st overloaded case
     if (typeof arg_1 === 'function') {
       ctor = arg_1;
       name = ctor.name;
     }
-
-    // 2nd overloaded case
-    if (typeof arg_1 === 'string') {
+    else {
       name = arg_1;
       ctor = arg_2;
     }
@@ -159,13 +154,10 @@ export class Container {
 
     let name: string;
 
-    // 1st overloaded case
     if (typeof identifier === 'string') {
       name = identifier;
     }
-
-    // 2nd overloaded case
-    if (typeof identifier === 'function') {
+    else {
       name = identifier.name;
     }
 

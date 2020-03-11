@@ -11,11 +11,11 @@ export class Dependency {
   private name?: string;
   private ctor?: ConstructorT;
   private readonly container: Container;
-  private readonly constructorIndex: number;
+  private readonly constructorIndex?: number;
   private value?: any;
 
-  public constructor(name: string,
-                     ctor: ConstructorT,
+  public constructor(name: string | undefined,
+                     ctor: ConstructorT | undefined,
                      container: Container,
                      constructorIndex?: number) {
     this.name = name;
