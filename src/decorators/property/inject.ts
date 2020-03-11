@@ -1,7 +1,7 @@
-import * as Exceptions        from '../exceptions';
-import * as Constants         from '../constants';
-import { Container }          from '../container';
-import { InjectionDecorator } from './types';
+import * as Exceptions        from '../../exceptions';
+import * as Constants         from '../../constants';
+import { Container }          from '../../container';
+import { InjectionDecorator } from '../types';
 
 
 export const InjectProperty: InjectionDecorator = (dependencyName?: string, container?: Container) => {

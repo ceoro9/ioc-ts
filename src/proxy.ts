@@ -1,6 +1,7 @@
-import * as Exceptions  from './exceptions';
-import { Dependency }   from './dependency';
-import { ConstructorT } from './types';
+import * as Exceptions                     from './exceptions';
+import { Dependency }                      from './dependency';
+import { ConstructorT }                    from './types';
+import { getConstructorParameterMetadata } from './decorators/constructor/metadata';
 
 
 export function createDependencyProxyObject(proxifiedObject: any) {
@@ -30,14 +31,11 @@ export function createDependencyProxyObject(proxifiedObject: any) {
       }
 
       if (result.isConstructorInjection()) {
-        const dependencyParamIndex = result.getConstructorIndex();
+        const dependencyParamIndex  = result.getConstructorIndex();
+        const ctorParameterMetadata = getConstructorParameterMetadata(target.constructor, dependencyParamIndex);        
+
         designType = Reflect.getMetadata("design:paramtypes", target.constructor)[dependencyParamIndex];
-
-        // TODO: create selector
-        const ctorMetadatas = Reflect.getMetadata('constructor:metadata', target.constructor) ?? {};
-
-        // TODO: create selector
-        dependencyName = ctorMetadatas[dependencyParamIndex]?.dependencyName ?? designType.name;
+        dependencyName = ctorParameterMetadata?.dependencyName ?? designType.name;
       }
 
       if (!designType) {

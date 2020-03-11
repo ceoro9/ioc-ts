@@ -1,6 +1,7 @@
-import { ConstructorT }                from './types';
-import { Container }                   from './container';
-import { createDependencyProxyObject } from './proxy';
+import { ConstructorT }                    from './types';
+import { Container }                       from './container';
+import { createDependencyProxyObject }     from './proxy';
+import { getConstructorParameterMetadata } from './decorators/constructor/metadata';
 
 /**
  * Container dependency entity
@@ -48,24 +49,22 @@ export class Dependency {
       return value;
     } 
 
-    // TODO: create separate function to obtain metadata
-    const ctorMetadatas = Reflect.getMetadata('constructor:metadata', ctor);
-
     // init entity with dependecies
     const dependencies = []
     for (let paramIndex = 0; paramIndex < ctor.length; ++paramIndex) {
-      const ctorParameterMetadata = ctorMetadatas[paramIndex] ?? {} as any;
-      // TODO: create selectors
+
+      const ctorParameterMetadata = getConstructorParameterMetadata(ctor, paramIndex);
       const dependency = new Dependency(
-        ctorParameterMetadata['dependencyName'],
-        void 0, // TODO: make more obvious why this is undefined
-        ctorParameterMetadata['container'] ?? this.container,
-        paramIndex
+        ctorParameterMetadata?.dependencyName,
+        void 0, // TODO: extract type constructor with design:paramtypes reflection
+        ctorParameterMetadata?.container ?? this.container,
+        paramIndex,
       );
+
       dependencies.push(dependency);
     }
 
-    const result = new ctor(...dependencies);
+    const result    = new ctor(...dependencies);
     const proxified = createDependencyProxyObject(result);
 
     this.setValue(proxified);
