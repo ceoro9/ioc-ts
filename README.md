@@ -2,80 +2,80 @@
 TypeScript IoC container
 
 # Installing
-TODO: add package to npm registry
-```
+```sh
 npm install https://github.com/ceoro9/ioc-ts
 ```
 
 # Usage
 
-Create container
+Imports
 ```ts
 import { Injectable, Inject, Container } from 'ioc-ts';
-
-const container = new Container();
 ```
 
-Define your injectable entities
+
+Define your entities and mark them with *Injectable* decorator
 ```ts
-@Injectable
-class Dependency_1 {
+@Injectable()
+class DependencyOne {
         
   public talk() {
-    console.log(`Hello. I'm Dependency_1`);
+    console.log(`Hello. I'm DependencyOne`);
   }
 }
 
 
-@Injectable
-class Dependency_2 {
+@Injectable()
+class DependencyTwo {
     
   public talk() {
-    console.log(`Hello. I'm Dependency_2`);
+    console.log(`Hello. I'm DependencyTwo`);
   }
 }
 ```
 
-Inject dependencies in the property
+Then inject dependencies in the property with *Inject* decorator
 ```ts
-@Injectable
-class Dependency_3 {
+@Injectable()
+class DependencyThree {
 
   @Inject()
-  public dep_1: Dependency_1;
+  private depOne: DependencyOne;
   
   public talk() {
-    this.dep_1.talk();    
+    this.depOne.talk();    
   }
 }
 ```
 
 Or in the constructor
 ```ts
-@Injectable
-class Dependency_4 {
+@Injectable()
+class DependencyFour {
     
-  public constructor(public readonly dep_2: Dependency_2) {}
+  public constructor(private readonly depTwo: DependencyTwo) {}
     
   public talk() {
-    this.dep_2.talk();    
+    this.depTwo.talk();    
   }
 }
 ```
 
-Add entities to your container
+
+Get default container, where all your injectable entities are stored
 ```ts
-container.bind(Dependency_1);
-container.bind(Dependency_2);
-container.bind(Dependency_3);
-container.bind(Dependency_4);
+const container = Container.getDefault();
 ```
 
-Your're done. Now you can safely work with your entities, IoC container will take care of resolving and initializing of their dependencies.
-```ts
-const dep_3 = container.getValue(Dependency_3);
-const dep_4 = container.getValue(Dependency_4);
 
-dep_3.talk();  // output: Hello. I'm Dependency_1
-dep_4.talk();  // output: Hello. I'm Dependency_2
+So you're done. Now you can safely and comfortably work with all of your entities. IoC container will take care of resolving and initializing of their dependencies.
+```ts
+const depThree = container.getValue(DependencyThree);
+const depFour  = container.getValue(DependencyFour);
+
+depThree.talk();  // output: Hello. I'm DependencyOne
+depFour.talk();   // output: Hello. I'm DependencyTwo
 ```
+
+# License
+This project is licensed under the [MIT](https://choosealicense.com/licenses/mit/) license.
