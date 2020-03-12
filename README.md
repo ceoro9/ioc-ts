@@ -36,7 +36,7 @@ class Dependency_2 {
 }
 ```
 
-Inject dependencies in propertiy
+Inject dependencies in the property
 ```
 @Injectable
 class Dependency_3 {
@@ -50,7 +50,7 @@ class Dependency_3 {
 }
 ```
 
-Or in constructor
+Or in the constructor
 ```
 @Injectable
 class Dependency_4 {
