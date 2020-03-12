@@ -1,7 +1,7 @@
 import { Injectable, Inject, Container } from '../src';
 
 
-@Injectable
+@Injectable('Dependency_Zero')
 class Dependency_0 {
 
   public sayHello() {
@@ -10,7 +10,7 @@ class Dependency_0 {
 }
 
 
-@Injectable
+@Injectable()
 class Dependency_1 {
 
   public sayHello() {
@@ -19,7 +19,7 @@ class Dependency_1 {
 }
 
 
-@Injectable
+@Injectable()
 class Dependency_2 {
 
   public constructor(@Inject('Dependency_Zero') private readonly dep_0: Dependency_0,
@@ -34,7 +34,7 @@ class Dependency_2 {
 
 
 
-@Injectable
+@Injectable()
 class A {
   public click() {
     console.log('CLICL FROM A');
@@ -42,7 +42,7 @@ class A {
 }
 
 
-@Injectable
+@Injectable()
 class Dependency_3 {
 
   @Inject('Dependency_Zero')
@@ -69,13 +69,15 @@ class Dependency_3 {
 
 function main() {
 
-  const container = new Container();
+  // const container = new Container();
 
-  container.bind(A);
-  container.bind('Dependency_Zero', Dependency_0);
-  container.bind(Dependency_1);
-  container.bind(Dependency_2);
-  container.bind(Dependency_3);
+  // container.bind(A);
+  // container.bind('Dependency_Zero', Dependency_0);
+  // container.bind(Dependency_1);
+  // container.bind(Dependency_2);
+  // container.bind(Dependency_3);
+
+  const container = Container.getDefault();
 
   const dep_2 = container.getValue(Dependency_2);
   const dep_3 = container.getValue(Dependency_3);

@@ -4,14 +4,27 @@ import { ConstructorT } from './types';
 import { Dependency }   from './dependency';
 
 
+let defaultContainer: Container | undefined;
+
+
 export class Container {
 
-  private dependencyConstructors: {[name: string]: ConstructorT};
-  public dependencyValues: {[name: string]: any};
+  /**
+   * Container with all entities marked as injectable
+   */
+  public static getDefault() {
+    if (!defaultContainer) {
+      defaultContainer = new Container();
+    }
+    return defaultContainer;
+  }
+
+  private dependencyConstructors: { [name: string]: ConstructorT };
+  private dependencyValues:       { [name: string]: any };
 
   public constructor() {
     this.dependencyConstructors = {};
-    this.dependencyValues = {}; 
+    this.dependencyValues       = {};
   }
 
   /**
