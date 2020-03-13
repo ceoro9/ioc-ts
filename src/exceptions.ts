@@ -21,3 +21,5 @@ export class ContainerNotBinded extends BaseDependecyException {}
 export class ContainerAlreadyBinded extends BaseDependecyException {}
 
 export class UnknowInjectionTypeException extends BaseDependecyException {}
+
+export class NoConstructorMetadata extends BaseDependecyException {}

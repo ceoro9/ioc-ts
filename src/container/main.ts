@@ -1,7 +1,7 @@
-import * as Exceptions  from './exceptions';
-import * as Constants   from './constants';
-import { ConstructorT } from './types';
-import { Dependency }   from './dependency';
+import * as Exceptions     from '../exceptions';
+import * as Constants      from '../constants';
+import { ConstructorT }    from '../types';
+import { ContainerEntity } from './entity';
 
 
 let defaultContainer: Container | undefined;
@@ -19,12 +19,12 @@ export class Container {
     return defaultContainer;
   }
 
-  private dependencyConstructors: { [name: string]: ConstructorT };
-  private dependencyValues:       { [name: string]: any };
+  private constructors: { [name: string]: ConstructorT | undefined };
+  private entities:     { [name: string]: ContainerEntity | undefined };
 
   public constructor() {
-    this.dependencyConstructors = {};
-    this.dependencyValues       = {};
+    this.constructors = {};
+    this.entities     = {};
   }
 
   /**
@@ -55,7 +55,7 @@ export class Container {
    * Get dependency constructor by name
    */
   public getConstructor(name: string) {
-    return this.dependencyConstructors[name];
+    return this.constructors[name];
   }
 
   /**
@@ -65,62 +65,51 @@ export class Container {
   public getValue<T>(ctor: ConstructorT<T>): T;
   public getValue(obj: any) {
 
-    let name: string;
+    let dependencyName: string;
 
-    if (typeof obj === 'string') {
-      name = obj;
+    if (typeof obj === 'function') {
+      dependencyName = obj.name;
     }
     else {
-      name = obj.name;
+      dependencyName = obj;
     }
 
-    const result = this.dependencyValues[name];
+    const result = this.getEntity(dependencyName);
 
     if (!result) {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    // not yet resolved
-    if (result instanceof Dependency) {
+    return result.getDependency();
+  }
 
-      // try to resolve
-      const designTypeCtor = this.getConstructor(name);
-      result.resolve(name, designTypeCtor, false);
+  public getEntity(dependencyName: string) {
+    return this.entities[dependencyName];
+  }
 
-      if (!result.isResolved()) {
-        throw new Exceptions.UnresolvedDependencyException(result);
-      }
-
-      // save value
-      const value = result.getValue();
-      this.dependencyValues[name] = value;
-
-      return value;
-    }
-
-    // already resolved
-    return result;
+  public removeEntity(dependencyName: string) {
+    delete this.entities[dependencyName];
   }
 
   /**
    * Remove dependency by name
    */
-  public remove(name: string) {
-    delete this.dependencyConstructors[name];
-    delete this.dependencyValues[name]; // TODO: call destructor
+  public remove(dependencyName: string) {
+    delete this.constructors[dependencyName];
+    this.removeEntity(dependencyName);
   }
 
   /**
    * Checks if dependency with provided identifiers exists in container
    */
   private checkDependencyName(name: string) {
-    if (this.dependencyConstructors[name]) {
+    if (this.getConstructor(name)) {
       throw new Exceptions.DependecyAlreadyBindedException();
     }
   }
 
   private addDependecyConstructor(name: string, ctor: ConstructorT) {
-    this.dependencyConstructors[name] = ctor;
+    this.constructors[name] = ctor;
   }
 
   /**
@@ -155,41 +144,6 @@ export class Container {
       ctor = arg_2;
     }
 
-    this.dependencyValues[name] = new Dependency(name, ctor, this);
-  }
-
-  /**
-   * Replaces dependency with value
-   */
-  public setDependencyValue(name: string, value: any): void;
-  public setDependencyValue(ctor: ConstructorT, value: any): void;
-  public setDependencyValue(identifier: any, value: any) {
-
-    let name: string;
-
-    if (typeof identifier === 'string') {
-      name = identifier;
-    }
-    else {
-      name = identifier.name;
-    }
-
-    if (!this.dependencyValues[name]) {
-      throw new Exceptions.UnknownDependencyException();
-    }
-
-    this.dependencyValues[name] = value;
-  }
-
-  public lookUpDependencyName(lookUpCtor: ConstructorT) {
-    // TODO: make more pretty
-
-    for (const dependencyName of Object.keys(this.dependencyConstructors)) {
-      if (this.dependencyConstructors[dependencyName] === lookUpCtor) {
-        return dependencyName;
-      }
-    }
-
-    return void 0;
+    this.entities[name] = new ContainerEntity(name, ctor, this);
   }
 }

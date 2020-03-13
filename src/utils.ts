@@ -4,6 +4,7 @@
  * @param destination copy metadata to function
  */
 export function copyFunctionMetadata(source: Function, destination: Function) {
+  // copy main function properties
   destination.prototype = source.prototype;
   Object.defineProperty(destination, 'name', {
     writable: false,
@@ -13,10 +14,9 @@ export function copyFunctionMetadata(source: Function, destination: Function) {
     writable: false,
     value: source.length,
   });
-  // TODO: make separate functino for this
-  // copy constructors medata
-  const ctorMetadatas = Reflect.getMetadata('constructor:metadata', source);
-  if (ctorMetadatas) {
-    Reflect.metadata('constructor:metadata', ctorMetadatas)(destination);
-  }
+  // copy metadata
+  Reflect.getMetadataKeys(source).forEach((metadataKey: any) => {
+    const metadataValue = Reflect.getMetadata(metadataKey, source);
+    Reflect.metadata(metadataKey, metadataValue)(destination);
+  });
 }
