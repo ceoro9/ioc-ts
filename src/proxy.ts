@@ -15,7 +15,7 @@ export function createDependencyProxyObject<T extends object>(proxifiedObject: o
 
       const container  = result.getContainer();
       const identifier = result.getIdentifier();
-      const value      = container.getDependencyMember(identifier)?.getDependency();
+      const value      = container.getEntity(identifier)?.getDependency();
 
       if (!value) {
         throw new Exceptions.UnresolvedDependencyException(result);

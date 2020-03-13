@@ -3,7 +3,7 @@ import { Container }                   from './base';
 import { createDependencyProxyObject } from '../proxy';
 import { Dependency }                  from '../dependency';
 
-export class DependencyMember {
+export class ContainerEntity {
 
   private dependency: any;
 

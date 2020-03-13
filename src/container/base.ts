@@ -1,7 +1,7 @@
-import * as Exceptions      from '../exceptions';
-import * as Constants       from '../constants';
-import { ConstructorT }     from '../types';
-import { DependencyMember } from './member';
+import * as Exceptions     from '../exceptions';
+import * as Constants      from '../constants';
+import { ConstructorT }    from '../types';
+import { ContainerEntity } from './entity';
 
 
 let defaultContainer: Container | undefined;
@@ -19,12 +19,12 @@ export class Container {
     return defaultContainer;
   }
 
-  private dependencyConstructors: { [name: string]: ConstructorT | undefined };
-  private dependencyMembers:      { [name: string]: DependencyMember | undefined };
+  private constructors: { [name: string]: ConstructorT | undefined };
+  private entities:     { [name: string]: ContainerEntity | undefined };
 
   public constructor() {
-    this.dependencyConstructors = {};
-    this.dependencyMembers      = {};
+    this.constructors = {};
+    this.entities     = {};
   }
 
   /**
@@ -55,7 +55,7 @@ export class Container {
    * Get dependency constructor by name
    */
   public getConstructor(name: string) {
-    return this.dependencyConstructors[name];
+    return this.constructors[name];
   }
 
   /**
@@ -74,7 +74,7 @@ export class Container {
       dependencyName = obj;
     }
 
-    const result = this.getDependencyMember(dependencyName);
+    const result = this.getEntity(dependencyName);
 
     if (!result) {
       throw new Exceptions.UnknownDependencyException();
@@ -83,33 +83,33 @@ export class Container {
     return result.getDependency();
   }
 
-  public getDependencyMember(dependencyName: string) {
-    return this.dependencyMembers[dependencyName];
+  public getEntity(dependencyName: string) {
+    return this.entities[dependencyName];
   }
 
-  public removeDependencyMember(dependencyName: string) {
-    delete this.dependencyMembers[dependencyName];
+  public removeEntity(dependencyName: string) {
+    delete this.entities[dependencyName];
   }
 
   /**
    * Remove dependency by name
    */
   public remove(dependencyName: string) {
-    delete this.dependencyConstructors[dependencyName];
-    this.removeDependencyMember(dependencyName);
+    delete this.constructors[dependencyName];
+    this.removeEntity(dependencyName);
   }
 
   /**
    * Checks if dependency with provided identifiers exists in container
    */
   private checkDependencyName(name: string) {
-    if (this.dependencyConstructors[name]) {
+    if (this.getConstructor(name)) {
       throw new Exceptions.DependecyAlreadyBindedException();
     }
   }
 
   private addDependecyConstructor(name: string, ctor: ConstructorT) {
-    this.dependencyConstructors[name] = ctor;
+    this.constructors[name] = ctor;
   }
 
   /**
@@ -144,35 +144,6 @@ export class Container {
       ctor = arg_2;
     }
 
-    this.dependencyMembers[name] = new DependencyMember(name, ctor, this);
-  }
-
-  /**
-   * Sets dependency value
-   */
-  public setDependencyValue(name: string, value: any): void;
-  public setDependencyValue(ctor: ConstructorT, value: any): void;
-  public setDependencyValue(identifier: any, value: any) {
-
-    let dependencyName: string;
-
-    if (typeof identifier === 'string') {
-      dependencyName = identifier;
-    }
-    else {
-      dependencyName = identifier.name;
-    }
-
-    this.setDependencyValue(dependencyName, value);
-  }
-
-  public lookUpDependencyName(lookUpCtor: ConstructorT) {
-    // TODO: make more pretty
-    for (const dependencyName of Object.keys(this.dependencyConstructors)) {
-      if (this.dependencyConstructors[dependencyName] === lookUpCtor) {
-        return dependencyName;
-      }
-    }
-    return void 0;
+    this.entities[name] = new ContainerEntity(name, ctor, this);
   }
 }
