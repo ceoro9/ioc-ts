@@ -9,7 +9,7 @@ export class Dependency  {
   private value?: any;
 
   public constructor(private readonly name: string | undefined,
-                     private readonly ctor: ConstructorT,
+                     private readonly constructor: ConstructorT,
                      private readonly container: Container,
                      private readonly paramIndex: number) {}
 
@@ -35,7 +35,7 @@ export class Dependency  {
 
     if (!this.value) {
       const container = this.container;
-      const ctor      = this.ctor;
+      const ctor      = this.constructor;
       const deps      = Dependency.initConstructorDependencies(ctor, container);
       const result    = new ctor(...deps);
       const proxified = createDependencyProxyObject(result);
@@ -43,6 +43,10 @@ export class Dependency  {
     }
 
     return this.value;
+  }
+
+  public getIdentifier() {
+    return this.getName() ?? this.getConstructor().name;
   }
 
   public getParamIndex() {
@@ -55,6 +59,10 @@ export class Dependency  {
 
   public getName() {
     return this.name;
+  }
+
+  public getConstructor() {
+    return this.constructor;
   }
 
   public getValue() {

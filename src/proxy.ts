@@ -1,4 +1,5 @@
-import { Dependency } from './dependency';
+import * as Exceptions from './exceptions';
+import { Dependency }  from './dependency';
 
 
 export function createDependencyProxyObject<T extends object>(proxifiedObject: object): T {
@@ -12,9 +13,15 @@ export function createDependencyProxyObject<T extends object>(proxifiedObject: o
         return result;
       }
 
-      // TODO: check in container
+      const container  = result.getContainer();
+      const identifier = result.getIdentifier();
+      const value      = container.getDependencyMember(identifier)?.getDependency();
 
-      return result.resolve();
+      if (!value) {
+        throw new Exceptions.UnresolvedDependencyException(result);
+      }
+
+      return value;
     }
   });
 }

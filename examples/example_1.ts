@@ -4,6 +4,10 @@ import { Injectable, Inject, Container } from '../src';
 @Injectable('Dependency_Zero')
 class Dependency_0 {
 
+  public constructor() {
+    console.log('Dependency_0::Constructor');
+  }
+
   public sayHello() {
       console.log('Hello_0');
   }

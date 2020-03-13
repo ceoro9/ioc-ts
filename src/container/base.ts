@@ -64,8 +64,16 @@ export class Container {
   public getValue(name: string): any;
   public getValue<T>(ctor: ConstructorT<T>): T;
   public getValue(obj: any) {
-    
-    const dependencyName: string = typeof obj === 'string' ? obj : obj.name;
+
+    let dependencyName: string;
+
+    if (typeof obj === 'function') {
+      dependencyName = obj.name;
+    }
+    else {
+      dependencyName = obj;
+    }
+
     const result = this.getDependencyMember(dependencyName);
 
     if (!result) {
@@ -73,24 +81,6 @@ export class Container {
     }
 
     return result.getDependency();
-
-    // if (result.isResolved()) { 
-    // }
-    // else {
-    //   const designTypeCtor = this.getConstructor(name);
-
-    //   if (!designTypeCtor) {
-    //     throw new Exceptions.UnknownDependencyException();
-    //   }
-
-    //   result.resolve(name, designTypeCtor, false);
-
-    //   if (!result.isResolved()) {
-    //     throw new Exceptions.UnresolvedDependencyException(result);
-    //   }
-    // }
-
-    // return result.getValue();
   }
 
   public getDependencyMember(dependencyName: string) {
