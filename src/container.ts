@@ -1,7 +1,7 @@
 import * as Exceptions  from './exceptions';
 import * as Constants   from './constants';
 import { ConstructorT } from './types';
-import { Dependency }   from './dependency';
+import { Dependency }   from './dependencies';
 
 
 let defaultContainer: Container | undefined;

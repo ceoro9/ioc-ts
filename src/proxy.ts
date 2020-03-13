@@ -1,5 +1,5 @@
 import * as Exceptions                     from './exceptions';
-import { Dependency }                      from './dependency';
+import { Dependency }                      from './dependencies';
 import { ConstructorT }                    from './types';
 import { getConstructorParameterMetadata } from './decorators/constructor/metadata';
 
