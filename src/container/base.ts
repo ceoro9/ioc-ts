@@ -1,7 +1,7 @@
-import * as Exceptions  from './exceptions';
-import * as Constants   from './constants';
-import { ConstructorT } from './types';
-import { Dependency }   from './dependencies';
+import * as Exceptions      from '../exceptions';
+import * as Constants       from '../constants';
+import { ConstructorT }     from '../types';
+import { DependencyMember } from './member';
 
 
 let defaultContainer: Container | undefined;
@@ -20,11 +20,11 @@ export class Container {
   }
 
   private dependencyConstructors: { [name: string]: ConstructorT | undefined };
-  private dependencyValues:       { [name: string]: Dependency | undefined };
+  private dependencyMembers:      { [name: string]: DependencyMember | undefined };
 
   public constructor() {
     this.dependencyConstructors = {};
-    this.dependencyValues       = {};
+    this.dependencyMembers      = {};
   }
 
   /**
@@ -64,47 +64,49 @@ export class Container {
   public getValue(name: string): any;
   public getValue<T>(ctor: ConstructorT<T>): T;
   public getValue(obj: any) {
-
-    let name: string;
-
-    if (typeof obj === 'string') {
-      name = obj;
-    }
-    else {
-      name = obj.name;
-    }
-
-    const result = this.dependencyValues[name];
+    
+    const dependencyName: string = typeof obj === 'string' ? obj : obj.name;
+    const result = this.getDependencyMember(dependencyName);
 
     if (!result) {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    if (result.isResolved()) { 
-    }
-    else {
-      const designTypeCtor = this.getConstructor(name);
+    return result.getDependency();
 
-      if (!designTypeCtor) {
-        throw new Exceptions.UnknownDependencyException();
-      }
+    // if (result.isResolved()) { 
+    // }
+    // else {
+    //   const designTypeCtor = this.getConstructor(name);
 
-      result.resolve(name, designTypeCtor, false);
+    //   if (!designTypeCtor) {
+    //     throw new Exceptions.UnknownDependencyException();
+    //   }
 
-      if (!result.isResolved()) {
-        throw new Exceptions.UnresolvedDependencyException(result);
-      }
-    }
+    //   result.resolve(name, designTypeCtor, false);
 
-    return result.getValue();
+    //   if (!result.isResolved()) {
+    //     throw new Exceptions.UnresolvedDependencyException(result);
+    //   }
+    // }
+
+    // return result.getValue();
+  }
+
+  public getDependencyMember(dependencyName: string) {
+    return this.dependencyMembers[dependencyName];
+  }
+
+  public removeDependencyMember(dependencyName: string) {
+    delete this.dependencyMembers[dependencyName];
   }
 
   /**
    * Remove dependency by name
    */
-  public remove(name: string) {
-    delete this.dependencyConstructors[name];
-    delete this.dependencyValues[name]; // TODO: call destructor
+  public remove(dependencyName: string) {
+    delete this.dependencyConstructors[dependencyName];
+    this.removeDependencyMember(dependencyName);
   }
 
   /**
@@ -152,7 +154,7 @@ export class Container {
       ctor = arg_2;
     }
 
-    this.dependencyValues[name] = new Dependency(name, ctor, this);
+    this.dependencyMembers[name] = new DependencyMember(name, ctor, this);
   }
 
   /**
@@ -162,33 +164,25 @@ export class Container {
   public setDependencyValue(ctor: ConstructorT, value: any): void;
   public setDependencyValue(identifier: any, value: any) {
 
-    let name: string;
+    let dependencyName: string;
 
     if (typeof identifier === 'string') {
-      name = identifier;
+      dependencyName = identifier;
     }
     else {
-      name = identifier.name;
+      dependencyName = identifier.name;
     }
 
-    const dependency = this.dependencyValues[name];
-
-    if (!dependency) {
-      throw new Exceptions.UnknownDependencyException();
-    }
-
-    dependency.setValue(value);  // resolve dependency
+    this.setDependencyValue(dependencyName, value);
   }
 
   public lookUpDependencyName(lookUpCtor: ConstructorT) {
     // TODO: make more pretty
-
     for (const dependencyName of Object.keys(this.dependencyConstructors)) {
       if (this.dependencyConstructors[dependencyName] === lookUpCtor) {
         return dependencyName;
       }
     }
-
     return void 0;
   }
 }

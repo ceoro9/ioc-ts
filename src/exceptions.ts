@@ -1,4 +1,4 @@
-import { Dependency } from './dependencies';
+import { Dependency } from './dependency';
 
 
 class BaseDependecyException {}
