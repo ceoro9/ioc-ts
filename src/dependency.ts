@@ -49,14 +49,14 @@ export class Dependency {
       return value;
     } 
 
-    // init entity with dependecies
+    // init dependecies of current entity
     const dependencies = []
     for (let paramIndex = 0; paramIndex < ctor.length; ++paramIndex) {
 
       const ctorParameterMetadata = getConstructorParameterMetadata(ctor, paramIndex);
       const dependency = new Dependency(
         ctorParameterMetadata?.dependencyName,
-        void 0, // TODO: extract type constructor with design:paramtypes reflection
+        ctorParameterMetadata?.designType,
         ctorParameterMetadata?.container ?? this.container,
         paramIndex,
       );
@@ -117,3 +117,4 @@ export class Dependency {
     return this;
   }
 }
+
