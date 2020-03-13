@@ -71,7 +71,7 @@ export class Dependency {
   }
 
   public isResolved() {
-    return !!this.value;
+    return this.value !== void 0;
   }
 
   public isPropertyInjection() {

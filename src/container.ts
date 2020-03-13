@@ -19,8 +19,8 @@ export class Container {
     return defaultContainer;
   }
 
-  private dependencyConstructors: { [name: string]: ConstructorT };
-  private dependencyValues:       { [name: string]: any };
+  private dependencyConstructors: { [name: string]: ConstructorT | undefined };
+  private dependencyValues:       { [name: string]: Dependency | undefined };
 
   public constructor() {
     this.dependencyConstructors = {};
@@ -80,26 +80,23 @@ export class Container {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    // not yet resolved
-    if (result instanceof Dependency) {
-
-      // try to resolve
+    if (result.isResolved()) { 
+    }
+    else {
       const designTypeCtor = this.getConstructor(name);
+
+      if (!designTypeCtor) {
+        throw new Exceptions.UnknownDependencyException();
+      }
+
       result.resolve(name, designTypeCtor, false);
 
       if (!result.isResolved()) {
         throw new Exceptions.UnresolvedDependencyException(result);
       }
-
-      // save value
-      const value = result.getValue();
-      this.dependencyValues[name] = value;
-
-      return value;
     }
 
-    // already resolved
-    return result;
+    return result.getValue();
   }
 
   /**
@@ -159,7 +156,7 @@ export class Container {
   }
 
   /**
-   * Replaces dependency with value
+   * Sets dependency value
    */
   public setDependencyValue(name: string, value: any): void;
   public setDependencyValue(ctor: ConstructorT, value: any): void;
@@ -174,11 +171,13 @@ export class Container {
       name = identifier.name;
     }
 
-    if (!this.dependencyValues[name]) {
+    const dependency = this.dependencyValues[name];
+
+    if (!dependency) {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    this.dependencyValues[name] = value;
+    dependency.setValue(value);  // resolve dependency
   }
 
   public lookUpDependencyName(lookUpCtor: ConstructorT) {
