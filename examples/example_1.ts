@@ -27,12 +27,13 @@ class Dependency_1 {
 class Dependency_2 {
 
   public constructor(@Inject('Dependency_Zero') private readonly dep_0: Dependency_0,
-                     @Inject() private readonly dep_1: Dependency_1) {}
+                     private readonly dep_1: Dependency_1) {}
 
   public sayHello() {
+    console.log('--- START Dependency_2 ---');
     this.dep_0.sayHello();
     this.dep_1.sayHello();
-    console.log('Hello_2');
+    console.log('--- END Dependency_2 ---');
   }
 }
 

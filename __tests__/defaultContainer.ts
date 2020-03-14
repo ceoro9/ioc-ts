@@ -200,4 +200,28 @@ describe('Constructor injection', () => {
     expect(depOne).toBeDefined();
     expect(depOne).toBeInstanceOf(DependencyOne);
   });
+
+  test('No decorator injection is resolved', () => {
+
+    @Injectable()
+    class DependencyOne {}
+
+    @Injectable()
+    class DependencyTwo {
+
+      public constructor(private readonly depOne: DependencyOne) {}
+
+      public getDependencyOne() {
+        return this.depOne;
+      }
+    }
+
+    const defaultContainer = Container.getDefault();
+
+    const depTwo = defaultContainer.get(DependencyTwo);
+    const depOne = depTwo.getDependencyOne();
+
+    expect(depOne).toBeDefined();
+    expect(depOne).toBeInstanceOf(DependencyOne);
+  });
 });

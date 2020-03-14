@@ -1,4 +1,3 @@
-import * as Exceptions  from '../../exceptions';
 import { Container }    from '../../container';
 import { ConstructorT } from '../../types';
 
@@ -75,11 +74,6 @@ export function addConstructorParameterMetadata(ctor: any, parameterMetadata: IC
 export function getConstructorParameterMetadata(ctor: any, parameterIndex: number) {
   const paramDesignType = Reflect.getMetadata("design:paramtypes", ctor)[parameterIndex];
   const ctorParameterMetadata = getMetadata(ctor)[parameterIndex];
-
-  if (!ctorParameterMetadata) {
-    throw new Exceptions.NoConstructorMetadata();
-  }
-
   return <OuterConstructorParameterMetadata>{
     designType: paramDesignType,
     ...ctorParameterMetadata,
