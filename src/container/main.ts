@@ -1,5 +1,4 @@
 import * as Exceptions     from '../exceptions';
-import * as Constants      from '../constants';
 import { ConstructorT }    from '../types';
 import { ContainerEntity } from './entity';
 
@@ -19,131 +18,110 @@ export class Container {
     return defaultContainer;
   }
 
-  private constructors: { [name: string]: ConstructorT | undefined };
-  private entities:     { [name: string]: ContainerEntity | undefined };
+  private entities: { [entityName: string]: ContainerEntity | undefined };
 
   public constructor() {
-    this.constructors = {};
-    this.entities     = {};
+    this.entities = {};
   }
 
   /**
-   * Bind dependency
+   * Add entity to container
    */
   public bind(ctor: ConstructorT): void;
   public bind(name: string, ctor: ConstructorT): void;
-  public bind(arg_1: any, arg_2?: any) {
+  public bind(identifier: ConstructorT | string, constructor?: ConstructorT) {
 
-    let ctor: ConstructorT, name: string;
+    const { entityName, ctor } = this.decodeEntityIdentifier(identifier, constructor);
 
-    if (typeof arg_1 === 'function') {
-      ctor = arg_1;
-      name = ctor.name;
+    if (this.getEntity(entityName)) {
+      throw new Exceptions.EntityAlreadyBindedException();
     }
-    else {
-      name = arg_1;
-      ctor = arg_2; 
-    }
-
-    this.bindContainerReference(ctor);
-    this.checkDependencyName(name);
-    this.addDependecyConstructor(name, ctor);
-    this.addDependencyValue(name, ctor);
+    
+    this.addEntity(entityName, ctor);
   }
 
   /**
-   * Get dependency constructor by name
+   * Gets entity instance from container
    */
-  public getConstructor(name: string) {
-    return this.constructors[name];
-  }
+  public get<T>(ctor: ConstructorT<T>): T;
+  public get(entityName: string): any;
+  public get(identifier: ConstructorT | string) {
 
-  /**
-   * Get dependency by name
-   */
-  public getValue(name: string): any;
-  public getValue<T>(ctor: ConstructorT<T>): T;
-  public getValue(obj: any) {
+    const { entityName } = this.decodeEntityIdentifier(identifier);    
+    const entity = this.getEntity(entityName);
 
-    let dependencyName: string;
-
-    if (typeof obj === 'function') {
-      dependencyName = obj.name;
-    }
-    else {
-      dependencyName = obj;
-    }
-
-    const result = this.getEntity(dependencyName);
-
-    if (!result) {
+    if (!entity) {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    return result.getDependency();
-  }
-
-  public getEntity(dependencyName: string) {
-    return this.entities[dependencyName];
-  }
-
-  public removeEntity(dependencyName: string) {
-    delete this.entities[dependencyName];
+    return entity.getValue();
   }
 
   /**
-   * Remove dependency by name
+   * Sets entity value(adds new, if does not exist)
    */
-  public remove(dependencyName: string) {
-    delete this.constructors[dependencyName];
-    this.removeEntity(dependencyName);
-  }
+  public set<T extends Object>(ctor: ConstructorT<T>, newValue: T): void;
+  public set(entityName: string, newValue: Object): void;
+  public set<T extends Object>(identifier: ConstructorT<T> | string, newValue: T) {
 
-  /**
-   * Checks if dependency with provided identifiers exists in container
-   */
-  private checkDependencyName(name: string) {
-    if (this.getConstructor(name)) {
-      throw new Exceptions.DependecyAlreadyBindedException();
-    }
-  }
+    const { entityName } = this.decodeEntityIdentifier(identifier);
+    let entity = this.getEntity(entityName);
 
-  private addDependecyConstructor(name: string, ctor: ConstructorT) {
-    this.constructors[name] = ctor;
-  }
-
-  /**
-   * Saves container reference to constructor's prototype
-   */
-  private bindContainerReference(ctor: ConstructorT) {
-
-    const ctorPrototype = ctor.prototype as any;
-
-    if (ctorPrototype[Constants.InjectableContainerKey]) {
-      throw new Exceptions.ContainerAlreadyBinded();
+    if (!entity) {
+      const ctor = (
+        typeof identifier === 'function'
+        ? identifier
+        : newValue.constructor as ConstructorT
+      );
+      entity = this.addEntity(entityName, ctor);
     }
 
-    ctorPrototype[Constants.InjectableContainerKey] = this;
+    entity.setValue(newValue);
+  }
+  
+  /**
+   * Removes entity from container
+   */
+  public remove<T>(ctor: ConstructorT<T>): T;
+  public remove(entityName: string): any;
+  public remove(identifier: ConstructorT | string) {
+
+    const { entityName } = this.decodeEntityIdentifier(identifier);
+
+    if (!this.getEntity(entityName)) {
+      throw new Exceptions.EntityDoesNotExistException();
+    }
+
+    this.removeEntity(entityName);
   }
 
-  /**
-   * Adds dependency value to container
-   */
-  public addDependencyValue(ctor: ConstructorT): void;
-  public addDependencyValue(name: string, ctor: ConstructorT): void;
-  public addDependencyValue(arg_1: any, arg_2?: any) {
+  private decodeEntityIdentifier(identifier: ConstructorT | string, constructor?: ConstructorT) {
 
-    let ctor: ConstructorT, name: string;
+    let entityName: string, ctor: ConstructorT;
 
-    if (typeof arg_1 === 'function') {
-      ctor = arg_1;
-      name = ctor.name;
+    if (typeof identifier === 'string') {
+      entityName = identifier;
+      ctor = constructor!;
     }
     else {
-      name = arg_1;
-      ctor = arg_2;
+      entityName = identifier.name;
+      ctor = identifier;
     }
 
-    this.entities[name] = new ContainerEntity(name, ctor, this);
+    return { entityName, ctor };
   }
+
+  private addEntity(entityName: string, ctor: ConstructorT) {
+    const entity = new ContainerEntity(entityName, ctor, this);
+    this.entities[entityName] = entity;
+    return entity;
+  }
+
+  public getEntity(entityName: string) {
+    return this.entities[entityName];
+  }
+
+  public removeEntity(entityName: string) {
+    delete this.entities[entityName];
+  } 
 }

@@ -70,8 +70,8 @@ const container = Container.getDefault();
 
 So you're done. Now you can safely and comfortably work with all of your entities. IoC container will take care of resolving and initializing of their dependencies.
 ```ts
-const depThree = container.getValue(DependencyThree);
-const depFour  = container.getValue(DependencyFour);
+const depThree = container.get(DependencyThree);
+const depFour  = container.get(DependencyFour);
 
 depThree.talk();  // output: Hello. I'm DependencyOne
 depFour.talk();   // output: Hello. I'm DependencyTwo

@@ -83,8 +83,8 @@ function main() {
 
   const container = Container.getDefault();
 
-  const dep_2 = container.getValue(Dependency_2);
-  const dep_3 = container.getValue(Dependency_3);
+  const dep_2 = container.get(Dependency_2);
+  const dep_3 = container.get(Dependency_3);
   
   console.log('----- DEP_2 -----');
   dep_2.sayHello();

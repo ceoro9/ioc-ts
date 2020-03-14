@@ -1,5 +1,4 @@
 import * as Exceptions        from '../../exceptions';
-import * as Constants         from '../../constants';
 import { Container }          from '../../container';
 import { InjectionDecorator } from '../types';
 
@@ -16,14 +15,9 @@ export const InjectProperty: InjectionDecorator = (dependencyName?: string, cont
 
     return {
       get() {
-        const sourceContainer = container ?? target[Constants.InjectableContainerKey];
-
-        if (!sourceContainer) {
-          throw new Exceptions.ContainerNotBinded();
-        }
-
-        return sourceContainer.getValue(dependencyIdentifier);
+        const sourceContainer = container ?? Container.getDefault();
+        return sourceContainer.get(dependencyIdentifier);
       },
-    } as any;
+    };
   };
 }

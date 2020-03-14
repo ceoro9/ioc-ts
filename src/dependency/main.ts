@@ -4,17 +4,20 @@ import { createDependencyProxyObject }      from '../proxy';
 import { initConstructorParamDependencies } from './others';
 
 
-export class Dependency  {
+/**
+ * Dependency, that is passed to the real injectable entities on their construction
+ */
+export class Dependency<T = any> {
   
-  private value?: any;
+  private value?: T;
 
   public constructor(private readonly name: string | undefined,
-                     private readonly constructor: ConstructorT,
+                     private readonly constructor: ConstructorT<T>,
                      private readonly container: Container,
                      private readonly paramIndex: number) {}
 
   /**
-   * Constructs new entity, using provided constructor.
+   * Constructs new entity instance, using provided constructor.
    * Passes dependencies with reflected metadata to constructor's parameters.
    * @param ctor
    * @param container
@@ -35,20 +38,20 @@ export class Dependency  {
     return this.value;
   }
 
-  public getParamIndex() {
-    return this.paramIndex;
-  }
-
-  public getContainer() {
-    return this.container;
-  }
-
   public getName() {
     return this.name;
   }
 
   public getConstructor() {
     return this.constructor;
+  }
+
+  public getContainer() {
+    return this.container;
+  }
+
+  public getParamIndex() {
+    return this.paramIndex;
   }
 
   public getValue() {
