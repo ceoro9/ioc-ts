@@ -1,25 +1,29 @@
 import { Dependency } from './dependency';
 
 
-class BaseDependecyException {}
+class BaseEntityException {}
 
-export class DependecyAlreadyBindedException extends BaseDependecyException {}
+class BaseDependencyException {}
 
-export class UnknownDependencyException extends BaseDependecyException {}
+export class EntityAlreadyBindedException extends BaseEntityException {}
 
-export class UnresolvedDependencyException extends BaseDependecyException {
+export class EntityDoesNotExistException extends BaseEntityException {}
+
+export class UnknownDependencyException extends BaseDependencyException {}
+
+export class UnresolvedDependencyException extends BaseDependencyException {
 
   public constructor(public dependecy: Dependency) {
     super();
   }
 }
 
-export class InvalidDependencyIdentifier extends BaseDependecyException {}
+export class InvalidDependencyIdentifier extends BaseDependencyException {}
 
-export class ContainerNotBinded extends BaseDependecyException {}
+export class ContainerNotBinded extends BaseDependencyException {}
 
-export class ContainerAlreadyBinded extends BaseDependecyException {}
+export class ContainerAlreadyBinded extends BaseDependencyException {}
 
-export class UnknowInjectionTypeException extends BaseDependecyException {}
+export class UnknowInjectionTypeException extends BaseDependencyException {}
 
-export class NoConstructorMetadata extends BaseDependecyException {}
+export class NoConstructorMetadata extends BaseDependencyException {}

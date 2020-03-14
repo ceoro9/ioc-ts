@@ -1,26 +1,29 @@
-import { ConstructorT }                     from '../types';
-import { Container }                        from '../container';
-import { createDependencyProxyObject }      from '../proxy';
-import { initConstructorParamDependencies } from './others';
+import { ConstructorT }                           from '../types';
+import { Container }                              from '../container';
+import { createDependencyProxyObject }            from '../proxy';
+import { constructEntityConstructorDependencies } from './others';
 
 
-export class Dependency  {
+/**
+ * Dependency, that is passed to the real injectable entities on their construction
+ */
+export class Dependency<T = any> {
   
-  private value?: any;
+  private value?: T;
 
   public constructor(private readonly name: string | undefined,
-                     private readonly constructor: ConstructorT,
+                     private readonly constructor: ConstructorT<T>,
                      private readonly container: Container,
                      private readonly paramIndex: number) {}
 
   /**
-   * Constructs new entity, using provided constructor.
+   * Constructs new entity instance, using provided constructor.
    * Passes dependencies with reflected metadata to constructor's parameters.
    * @param ctor
    * @param container
    */
-  public static constructEntity(ctor: ConstructorT, container: Container) {    
-    const deps   = initConstructorParamDependencies(ctor, container);
+  public static constructEntityInstance(ctor: ConstructorT, container: Container) {    
+    const deps   = constructEntityConstructorDependencies(ctor, container);
     const result = new ctor(...deps);
     return createDependencyProxyObject(result);
   }
@@ -28,19 +31,11 @@ export class Dependency  {
   public resolve() {
 
     if (!this.value) {
-      const value = Dependency.constructEntity(this.constructor, this.container);
+      const value = Dependency.constructEntityInstance(this.constructor, this.container);
       this.setValue(value);
     }
 
     return this.value;
-  }
-
-  public getParamIndex() {
-    return this.paramIndex;
-  }
-
-  public getContainer() {
-    return this.container;
   }
 
   public getName() {
@@ -49,6 +44,14 @@ export class Dependency  {
 
   public getConstructor() {
     return this.constructor;
+  }
+
+  public getContainer() {
+    return this.container;
+  }
+
+  public getParamIndex() {
+    return this.paramIndex;
   }
 
   public getValue() {

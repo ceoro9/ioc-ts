@@ -10,11 +10,11 @@ import { getConstructorParameterMetadata } from '../decorators/constructor/metad
  * @param ctor
  * @param container
  */
-export function initConstructorParamDependencies(ctor: ConstructorT, container: Container) {
+export function constructEntityConstructorDependencies(entityCtor: ConstructorT, container: Container) {
   const dependencies = []
   
-  for (let paramIndex = 0; paramIndex < ctor.length; ++paramIndex) {
-    const ctorParameterMetadata = getConstructorParameterMetadata(ctor, paramIndex);
+  for (let paramIndex = 0; paramIndex < entityCtor.length; ++paramIndex) {
+    const ctorParameterMetadata = getConstructorParameterMetadata(entityCtor, paramIndex);
     const dependency = new Dependency(
       ctorParameterMetadata?.dependencyName,
       ctorParameterMetadata?.designType,

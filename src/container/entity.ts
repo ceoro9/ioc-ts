@@ -4,33 +4,41 @@ import { Dependency }   from '../dependency';
 
 
 /**
- * Unique injectable entity instance, 
+ * Entity with injectable instance value,
  * that is stored in the container.
  */
-export class ContainerEntity {
+export class ContainerEntity<T = any> {
 
-  private dependency: any;
+  private value: T;
 
   public constructor(private readonly name: string | undefined,
-                     private readonly constructor: ConstructorT,
+                     private readonly constructor: ConstructorT<T>,
                      private readonly container: Container) {}
 
-  public getDependency() {
+  public getValue() {
 
-    if (!this.dependency) {
-      const value = Dependency.constructEntity(this.constructor, this.container);
-      this.setDependency(value);
+    if (!this.value) {
+      const value = Dependency.constructEntityInstance(this.constructor, this.container);
+      this.setValue(value);
     }
 
-    return this.dependency;
+    return this.value;
+  }
+
+  public getConstructor() {
+    return this.constructor;
+  }
+
+  public getName() {
+    return this.name;
   }
 
   public getIdentifier() {
-    return this.name ?? this.constructor.name;
+    return this.getName() ?? this.getConstructor().name;
   }
 
-  public setDependency(newValue: any) {
-    this.dependency = newValue;
+  public setValue(newValue: any) {
+    this.value = newValue;
     return this;
   }
 }
