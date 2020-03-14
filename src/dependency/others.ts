@@ -1,8 +1,7 @@
-import { ConstructorT }                    from '../types';
-import { Container }                       from '../container';
-import { Dependency }                      from './main';
+import { ConstructorT } from '../types';
+import { Container } from '../container';
+import { Dependency } from './main';
 import { getConstructorParameterMetadata } from '../decorators/constructor/metadata';
-
 
 /**
  * Creates array of dependencies(with reflected metadata),
@@ -11,8 +10,8 @@ import { getConstructorParameterMetadata } from '../decorators/constructor/metad
  * @param container
  */
 export function constructEntityConstructorDependencies(entityCtor: ConstructorT, container: Container) {
-  const dependencies = []
-  
+  const dependencies = [];
+
   for (let paramIndex = 0; paramIndex < entityCtor.length; ++paramIndex) {
     const ctorParameterMetadata = getConstructorParameterMetadata(entityCtor, paramIndex);
     const dependency = new Dependency(
@@ -24,6 +23,6 @@ export function constructEntityConstructorDependencies(entityCtor: ConstructorT,
 
     dependencies.push(dependency);
   }
-  
+
   return dependencies;
 }

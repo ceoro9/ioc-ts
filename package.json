@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc"
+    "build": "./node_modules/typescript/bin/tsc",
+    "lint": "eslint --ext ts .",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "node ./node_modules/jest/bin/jest.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,6 +15,15 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
+    "@types/jest": "^25.1.4",
+    "@typescript-eslint/eslint-plugin": "^2.23.0",
+    "@typescript-eslint/parser": "^2.23.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   }
 }

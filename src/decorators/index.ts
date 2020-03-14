@@ -1,2 +1,2 @@
-export { Inject }     from './inject';
+export { Inject } from './inject';
 export { Injectable } from './injectable';

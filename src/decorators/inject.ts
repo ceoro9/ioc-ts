@@ -1,8 +1,7 @@
-import { Container }          from '../container';
+import { Container } from '../container';
 import { InjectionDecorator } from './types';
-import { InjectConstructor }  from './constructor';
-import { InjectProperty }     from './property';
-
+import { InjectConstructor } from './constructor';
+import { InjectProperty } from './property';
 
 /**
  * Injects dependency
@@ -10,14 +9,11 @@ import { InjectProperty }     from './property';
  * @param container
  */
 export const Inject: InjectionDecorator = (dependencyName?: string, container?: Container) => {
-
-  return function(target: Object, propertyKey: string | symbol, parameterIndex?: number) {
-
+  return function(target: Record<string, any>, propertyKey: string | symbol, parameterIndex?: number) {
     if (parameterIndex !== undefined) {
       InjectConstructor(dependencyName, container)(target, propertyKey, parameterIndex);
-    }
-    else {
+    } else {
       return InjectProperty(dependencyName, container)(target, propertyKey);
     }
-  }
-}
+  };
+};

@@ -1,6 +1,5 @@
 import { Dependency } from './dependency';
 
-
 class BaseEntityException {}
 
 class BaseDependencyException {}
@@ -12,7 +11,6 @@ export class EntityDoesNotExistException extends BaseEntityException {}
 export class UnknownDependencyException extends BaseDependencyException {}
 
 export class UnresolvedDependencyException extends BaseDependencyException {
-
   public constructor(public dependecy: Dependency) {
     super();
   }
