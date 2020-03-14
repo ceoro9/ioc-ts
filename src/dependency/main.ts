@@ -1,7 +1,7 @@
-import { ConstructorT }                     from '../types';
-import { Container }                        from '../container';
-import { createDependencyProxyObject }      from '../proxy';
-import { initConstructorParamDependencies } from './others';
+import { ConstructorT }                           from '../types';
+import { Container }                              from '../container';
+import { createDependencyProxyObject }            from '../proxy';
+import { constructEntityConstructorDependencies } from './others';
 
 
 /**
@@ -22,8 +22,8 @@ export class Dependency<T = any> {
    * @param ctor
    * @param container
    */
-  public static constructEntity(ctor: ConstructorT, container: Container) {    
-    const deps   = initConstructorParamDependencies(ctor, container);
+  public static constructEntityInstance(ctor: ConstructorT, container: Container) {    
+    const deps   = constructEntityConstructorDependencies(ctor, container);
     const result = new ctor(...deps);
     return createDependencyProxyObject(result);
   }
@@ -31,7 +31,7 @@ export class Dependency<T = any> {
   public resolve() {
 
     if (!this.value) {
-      const value = Dependency.constructEntity(this.constructor, this.container);
+      const value = Dependency.constructEntityInstance(this.constructor, this.container);
       this.setValue(value);
     }
 

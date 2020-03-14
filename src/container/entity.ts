@@ -18,7 +18,7 @@ export class ContainerEntity<T = any> {
   public getValue() {
 
     if (!this.value) {
-      const value = Dependency.constructEntity(this.constructor, this.container);
+      const value = Dependency.constructEntityInstance(this.constructor, this.container);
       this.setValue(value);
     }
 
