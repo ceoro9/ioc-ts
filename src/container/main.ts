@@ -95,6 +95,15 @@ export class Container {
     this.removeEntity(entityName);
   }
 
+  /**
+   * Removes all entities
+   */
+  public clear() {
+    Object
+      .keys(this.entities)
+      .forEach((entityName) => this.removeEntity(entityName));
+  }
+
   private decodeEntityIdentifier(identifier: ConstructorT | string, constructor?: ConstructorT) {
 
     let entityName: string, ctor: ConstructorT;
