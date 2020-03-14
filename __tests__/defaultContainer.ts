@@ -1,8 +1,6 @@
 import { Inject, Injectable, Container } from '../src';
 
-
 describe('Injectable entities presence', () => {
-
   beforeEach(() => {
     // remove all entities from default container
     const defaultContainer = Container.getDefault();
@@ -10,27 +8,25 @@ describe('Injectable entities presence', () => {
   });
 
   test('All implicit injectables must presence in default container', () => {
-
     @Injectable()
     class DependencyOne {}
-  
+
     @Injectable()
     class DependencyTwo {}
-  
+
     const container = Container.getDefault();
 
     const depOne = container.get(DependencyOne);
     const depTwo = container.get(DependencyTwo);
-    
+
     expect(depOne).toBeDefined();
     expect(depTwo).toBeDefined();
-    
+
     expect(depOne).toBeInstanceOf(DependencyOne);
     expect(depTwo).toBeInstanceOf(DependencyTwo);
   });
 
   test('All explicit injectables must presence in default container', () => {
-
     const DEPENDENCY_ONE_NAME = 'DEPENDENCY_ONE_NAME';
     const DEPENDENCY_TWO_NAME = 'DEPENDENCY_TWO_NAME';
 
@@ -47,13 +43,12 @@ describe('Injectable entities presence', () => {
 
     expect(depOne).toBeDefined();
     expect(depTwo).toBeDefined();
-    
+
     expect(depOne).toBeInstanceOf(DependencyOne);
     expect(depTwo).toBeInstanceOf(DependencyTwo);
   });
 
   test('All binded injectables to custom container, anyway must presence in default one', () => {
-
     @Injectable()
     class DependencyOne {}
 
@@ -68,18 +63,16 @@ describe('Injectable entities presence', () => {
 
     const depOne = defaultContainer.get(DependencyOne);
     const depTwo = defaultContainer.get(DependencyTwo);
-    
+
     expect(depOne).toBeDefined();
     expect(depTwo).toBeDefined();
-    
+
     expect(depOne).toBeInstanceOf(DependencyOne);
     expect(depTwo).toBeInstanceOf(DependencyTwo);
   });
 });
 
-
 describe('Property injection', () => {
-
   beforeEach(() => {
     // remove all entities from default container
     const defaultContainer = Container.getDefault();
@@ -87,13 +80,11 @@ describe('Property injection', () => {
   });
 
   test('Implicit injection is resolved', () => {
-
     @Injectable()
     class DependencyOne {}
 
     @Injectable()
     class DependencyTwo {
-
       @Inject()
       private depOne: DependencyOne;
 
@@ -112,7 +103,6 @@ describe('Property injection', () => {
   });
 
   test('Explicit injection is resolved', () => {
-
     const DEPENDENCY_ONE_NAME = 'DEPENDENCY_ONE_NAME';
     const DEPENDENCY_TWO_NAME = 'DEPENDENCY_TWO_NAME';
 
@@ -121,7 +111,6 @@ describe('Property injection', () => {
 
     @Injectable(DEPENDENCY_TWO_NAME)
     class DependencyTwo {
-
       @Inject(DEPENDENCY_ONE_NAME)
       private depOne: DependencyOne;
 
@@ -138,12 +127,9 @@ describe('Property injection', () => {
     expect(depOne).toBeDefined();
     expect(depOne).toBeInstanceOf(DependencyOne);
   });
-
 });
 
-
 describe('Constructor injection', () => {
-
   beforeEach(() => {
     // remove all entities from default container
     const defaultContainer = Container.getDefault();
@@ -151,13 +137,11 @@ describe('Constructor injection', () => {
   });
 
   test('Implicit injection is resolved', () => {
-
     @Injectable()
     class DependencyOne {}
 
     @Injectable()
     class DependencyTwo {
-
       public constructor(@Inject() private readonly depOne: DependencyOne) {}
 
       public getDependencyOne() {
@@ -175,7 +159,6 @@ describe('Constructor injection', () => {
   });
 
   test('Explicit injection is resolved', () => {
-
     const DEPENDENCY_ONE_NAME = 'DEPENDENCY_ONE_NAME';
     const DEPENDENCY_TWO_NAME = 'DEPENDENCY_TWO_NAME';
 
@@ -184,7 +167,6 @@ describe('Constructor injection', () => {
 
     @Injectable(DEPENDENCY_TWO_NAME)
     class DependencyTwo {
-
       public constructor(@Inject(DEPENDENCY_ONE_NAME) private readonly depOne: DependencyOne) {}
 
       public getDependencyOne() {
@@ -202,13 +184,11 @@ describe('Constructor injection', () => {
   });
 
   test('No decorator injection is resolved', () => {
-
     @Injectable()
     class DependencyOne {}
 
     @Injectable()
     class DependencyTwo {
-
       public constructor(private readonly depOne: DependencyOne) {}
 
       public getDependencyOne() {

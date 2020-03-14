@@ -1,43 +1,37 @@
 import { Injectable, Inject, Container } from '../src';
 
-
 @Injectable('Dependency_Zero')
-class Dependency_0 {
-
+class DependencyZero {
   public constructor() {
-    console.log('Dependency_0::Constructor');
+    console.log('DependencyZero::Constructor');
   }
 
   public sayHello() {
-      console.log('Hello_0');
+    console.log('Hello_0');
   }
 }
 
-
 @Injectable()
-class Dependency_1 {
-
+class DependencyOne {
   public sayHello() {
     console.log('Hello_1');
   }
 }
 
-
 @Injectable()
-class Dependency_2 {
-
-  public constructor(@Inject('Dependency_Zero') private readonly dep_0: Dependency_0,
-                     private readonly dep_1: Dependency_1) {}
+class DependencyTwo {
+  public constructor(
+    @Inject('Dependency_Zero') private readonly depZero: DependencyZero,
+    private readonly depOne: DependencyOne,
+  ) {}
 
   public sayHello() {
     console.log('--- START Dependency_2 ---');
-    this.dep_0.sayHello();
-    this.dep_1.sayHello();
+    this.depZero.sayHello();
+    this.depOne.sayHello();
     console.log('--- END Dependency_2 ---');
   }
 }
-
-
 
 @Injectable()
 class A {
@@ -46,53 +40,40 @@ class A {
   }
 }
 
-
 @Injectable()
-class Dependency_3 {
-
+class DependencyThree {
   @Inject('Dependency_Zero')
-  public dep_0: Dependency_0;
+  public depZero: DependencyZero;
 
   @Inject()
-  public dep_1: Dependency_1;
-  
+  public depOne: DependencyOne;
+
   @Inject()
-  public dep_2: Dependency_2;
+  public depTwo: DependencyTwo;
 
   @Inject()
   public nice: A;
 
   public sayBye() {
     console.log('--- START Dependency_3 ---');
-    this.dep_0.sayHello();
-    this.dep_1.sayHello();
-    this.dep_2.sayHello();
+    this.depZero.sayHello();
+    this.depOne.sayHello();
+    this.depTwo.sayHello();
     console.log('--- END Dependency_3 ---');
   }
 }
 
-
 function main() {
-
-  // const container = new Container();
-
-  // container.bind(A);
-  // container.bind('Dependency_Zero', Dependency_0);
-  // container.bind(Dependency_1);
-  // container.bind(Dependency_2);
-  // container.bind(Dependency_3);
-
   const container = Container.getDefault();
 
-  const dep_2 = container.get(Dependency_2);
-  const dep_3 = container.get(Dependency_3);
-  
+  const depTwo = container.get(DependencyTwo);
+  const depThree = container.get(DependencyThree);
+
   console.log('----- DEP_2 -----');
-  dep_2.sayHello();
+  depTwo.sayHello();
 
   console.log('----- DEP_3 ------');
-  dep_3.sayBye();
+  depThree.sayBye();
 }
-
 
 main();
