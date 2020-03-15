@@ -10,7 +10,7 @@ npm install https://github.com/ceoro9/ioc-ts
 
 Imports
 ```ts
-import { Injectable, Inject, Container } from 'ioc-ts';
+import { Injectable, Inject, Container } from '@ceoro9/ioc-ts';
 ```
 
 
