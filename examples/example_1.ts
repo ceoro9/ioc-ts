@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { Injectable, Inject, Container } from '../src';
 
 @Injectable('Dependency_Zero')

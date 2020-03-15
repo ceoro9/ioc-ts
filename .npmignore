@@ -1,0 +1,15 @@
+src
+__tests__
+typings
+bundled
+build
+temp
+coverage
+docs
+tsconfig.json
+typings.json
+eslint.json
+wallaby.js
+.travis.yml
+.gitignore
+.vscode

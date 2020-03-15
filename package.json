@@ -2,13 +2,15 @@
   "name": "ioc-ts",
   "version": "1.0.0",
   "description": "Inversion of control container on TypeScript",
-  "type": "module",
+  "type": "commonjs",
   "main": "build/index.js",
+  "module": "build/index.es.js",
+  "jsnext:main": "build/index.es.js",
   "files": [
     "build"
   ],
   "scripts": {
-    "build": "rollup -c",
+    "build": "rollup --config && tsc",
     "start": "rollup -c -w",
     "clean": "rm -rf build/",
     "lint": "eslint --ext ts,js,json .",
@@ -28,7 +30,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
     "@types/jest": "^25.1.4",
+    "@types/mocha": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
     "@typescript-eslint/parser": "^2.23.0",
     "babel-core": "^6.26.3",
@@ -40,7 +45,7 @@
     "prettier": "^1.19.1",
     "reflect-metadata": "^0.1.13",
     "rollup": "^2.0.6",
-    "rollup-plugin-sass": "^1.2.2",
+    "rollup-plugin-terser": "^5.3.0",
     "rollup-plugin-typescript2": "^0.26.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"

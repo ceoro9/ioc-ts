@@ -1,10 +1,10 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES2015",
-    "module": "ES2015",
+    "target": "ES5",
+    "module": "commonjs",
     "lib": ["es6", "dom"],
-    "types": ["reflect-metadata"],
+    "types": ["reflect-metadata", "jest"],
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
@@ -22,5 +22,5 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "examples/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "build", "examples", "rollup.config.js"]
 }
