@@ -1,26 +1,21 @@
 {
-    "compileOnSave": true,
-    "compilerOptions": {
-      "target": "ES2016",
-      "sourceMap": false,
-      "module": "commonjs",
-      "esModuleInterop": true,
-      "outDir": "build",
-      "moduleResolution": "node",
-      "allowSyntheticDefaultImports": true,
-      "strictNullChecks": true,
-      "noImplicitAny": true,
-      "noImplicitReturns": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
-    },
-    "include": [
-      "src/**/*",
-      "examples/**/*"
-    ],
-    "exclude": [
-      "node_modules"
-  ]
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "ES2016",
+    "sourceMap": false,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "outDir": "build",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src/**/*", "examples/**/*"],
+  "exclude": ["node_modules"]
 }

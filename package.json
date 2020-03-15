@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
-    "lint": "eslint --ext ts .",
+    "lint": "eslint --ext ts,js,json .",
     "lint:fix": "npm run lint -- --fix",
     "test": "node ./node_modules/jest/bin/jest.js"
   },
