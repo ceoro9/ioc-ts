@@ -6,18 +6,18 @@ import { Dependency } from '../dependency';
  * Entity with injectable instance value,
  * that is stored in the container.
  */
-export class ContainerEntity<T = any> {
+export class Entity<T = any> {
   private value: T;
 
   public constructor(
     private readonly name: string | undefined,
-    private readonly constructor: ConstructorT<T>,
+    private readonly ctor: ConstructorT<T>,
     private readonly container: Container,
   ) {}
 
   public getValue() {
     if (!this.value) {
-      const value = Dependency.constructEntityInstance(this.constructor, this.container);
+      const value = Dependency.constructEntityInstance(this.ctor, this.container);
       this.setValue(value);
     }
 
