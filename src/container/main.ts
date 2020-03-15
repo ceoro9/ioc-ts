@@ -1,6 +1,6 @@
 import * as Exceptions from '../exceptions';
 import { ConstructorT } from '../types';
-import { ContainerEntity } from './entity';
+import { Entity } from './entity';
 
 let globalContainer: Container | undefined;
 
@@ -15,7 +15,7 @@ export class Container {
     return globalContainer;
   }
 
-  private entities: { [entityName: string]: ContainerEntity | undefined };
+  private entities: { [entityName: string]: Entity | undefined };
 
   public constructor() {
     this.entities = {};
@@ -106,7 +106,7 @@ export class Container {
   }
 
   private addEntity(entityName: string, ctor: ConstructorT) {
-    const entity = new ContainerEntity(entityName, ctor, this);
+    const entity = new Entity(entityName, ctor, this);
     this.entities[entityName] = entity;
     return entity;
   }

@@ -1,13 +1,18 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "target": "ES2016",
-    "sourceMap": false,
+    "target": "ES5",
     "module": "commonjs",
+    "lib": ["es6", "dom"],
+    "types": ["reflect-metadata", "jest"],
+    "sourceMap": true,
+    "declaration": true,
+    "allowJs": false,
     "esModuleInterop": true,
     "outDir": "build",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    "removeComments": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -17,5 +22,5 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src/**/*", "examples/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "build", "examples", "rollup.config.js"]
 }

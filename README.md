@@ -3,14 +3,15 @@ TypeScript IoC container
 
 # Installing
 ```sh
-npm install https://github.com/ceoro9/ioc-ts
+npm install @ceoro9/ioc-ts reflect-metadata --save
 ```
 
 # Usage
 
 Imports
 ```ts
-import { Injectable, Inject, Container } from 'ioc-ts';
+import 'reflect-metadata';
+import { Injectable, Inject, Container } from '@ceoro9/ioc-ts';
 ```
 
 
