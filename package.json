@@ -1,28 +1,47 @@
 {
   "name": "ioc-ts",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Inversion of control container on TypeScript",
+  "type": "module",
+  "main": "build/index.js",
+  "files": [
+    "build"
+  ],
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
+    "build": "rollup -c",
+    "start": "rollup -c -w",
+    "clean": "rm -rf build/",
     "lint": "eslint --ext ts,js,json .",
     "lint:fix": "npm run lint -- --fix",
-    "test": "node ./node_modules/jest/bin/jest.js"
+    "test": "jest"
   },
+  "keywords": [
+    "ioc",
+    "di",
+    "javascript",
+    "typescript",
+    "node",
+    "dependency injection",
+    "dependency inversion",
+    "inversion of control container"
+  ],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "reflect-metadata": "^0.1.13"
-  },
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^25.1.4",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
     "@typescript-eslint/parser": "^2.23.0",
+    "babel-core": "^6.26.3",
+    "babel-runtime": "^6.26.0",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
     "jest": "^25.1.0",
     "prettier": "^1.19.1",
+    "reflect-metadata": "^0.1.13",
+    "rollup": "^2.0.6",
+    "rollup-plugin-sass": "^1.2.2",
+    "rollup-plugin-typescript2": "^0.26.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   }
