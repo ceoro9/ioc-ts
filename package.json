@@ -1,6 +1,6 @@
 {
   "name": "@ceoro9/ioc-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Inversion of control container on TypeScript",
   "main": "build/index.js",
   "module": "build/index.es.js",
