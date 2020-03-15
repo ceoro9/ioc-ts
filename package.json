@@ -2,13 +2,16 @@
   "name": "ioc-ts",
   "version": "1.0.0",
   "description": "Inversion of control container on TypeScript",
-  "type": "commonjs",
   "main": "build/index.js",
   "module": "build/index.es.js",
   "jsnext:main": "build/index.es.js",
   "files": [
     "build"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ceoro9/ioc-ts.git"
+  },
   "scripts": {
     "build": "rollup --config && tsc",
     "start": "rollup -c -w",
@@ -27,8 +30,12 @@
     "dependency inversion",
     "inversion of control container"
   ],
-  "author": "",
+  "author": "ceoro9",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ceoro9/ioc-ts/issues"
+  },
+  "homepage": "https://github.com/ceoro9/ioc-ts#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
