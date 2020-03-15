@@ -1,5 +1,5 @@
 # ioc-ts
-TypeScript IoC container
+Inversion of control container on TypeScript
 
 # Installing
 ```sh
