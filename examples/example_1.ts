@@ -64,7 +64,7 @@ class DependencyThree {
 }
 
 function main() {
-  const container = Container.getDefault();
+  const container = Container.getGlobal();
 
   const depTwo = container.get(DependencyTwo);
   const depThree = container.get(DependencyThree);

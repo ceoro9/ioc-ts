@@ -36,7 +36,7 @@ export function Injectable(dependencyName?: string) {
     copyFunctionMetadata(original, newCtor);
 
     // adds entity(new constructor) to default container
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
     if (dependencyName) {
       defaultContainer.bind(dependencyName, newCtor);
     } else {

@@ -3,18 +3,18 @@ import { Inject, Injectable, Container } from '../src';
 describe('Injectable entities presence', () => {
   beforeEach(() => {
     // remove all entities from default container
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
     defaultContainer.clear();
   });
 
-  test('All implicit injectables must presence in default container', () => {
+  test('All implicit injectables', () => {
     @Injectable()
     class DependencyOne {}
 
     @Injectable()
     class DependencyTwo {}
 
-    const container = Container.getDefault();
+    const container = Container.getGlobal();
 
     const depOne = container.get(DependencyOne);
     const depTwo = container.get(DependencyTwo);
@@ -26,7 +26,7 @@ describe('Injectable entities presence', () => {
     expect(depTwo).toBeInstanceOf(DependencyTwo);
   });
 
-  test('All explicit injectables must presence in default container', () => {
+  test('All explicit injectables', () => {
     const DEPENDENCY_ONE_NAME = 'DEPENDENCY_ONE_NAME';
     const DEPENDENCY_TWO_NAME = 'DEPENDENCY_TWO_NAME';
 
@@ -36,7 +36,7 @@ describe('Injectable entities presence', () => {
     @Injectable(DEPENDENCY_TWO_NAME)
     class DependencyTwo {}
 
-    const container = Container.getDefault();
+    const container = Container.getGlobal();
 
     const depOne = container.get(DEPENDENCY_ONE_NAME);
     const depTwo = container.get(DEPENDENCY_TWO_NAME);
@@ -48,7 +48,7 @@ describe('Injectable entities presence', () => {
     expect(depTwo).toBeInstanceOf(DependencyTwo);
   });
 
-  test('All binded injectables to custom container, anyway must presence in default one', () => {
+  test('All binded injectables to custom container', () => {
     @Injectable()
     class DependencyOne {}
 
@@ -59,7 +59,7 @@ describe('Injectable entities presence', () => {
     customContainer.bind(DependencyOne);
     customContainer.bind(DependencyTwo);
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depOne = defaultContainer.get(DependencyOne);
     const depTwo = defaultContainer.get(DependencyTwo);
@@ -75,7 +75,7 @@ describe('Injectable entities presence', () => {
 describe('Property injection', () => {
   beforeEach(() => {
     // remove all entities from default container
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
     defaultContainer.clear();
   });
 
@@ -93,7 +93,7 @@ describe('Property injection', () => {
       }
     }
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depTwo = defaultContainer.get(DependencyTwo);
     const depOne = depTwo.getDependencyOne();
@@ -119,7 +119,7 @@ describe('Property injection', () => {
       }
     }
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depTwo = defaultContainer.get(DEPENDENCY_TWO_NAME) as DependencyTwo;
     const depOne = depTwo.getDependencyOne();
@@ -132,7 +132,7 @@ describe('Property injection', () => {
 describe('Constructor injection', () => {
   beforeEach(() => {
     // remove all entities from default container
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
     defaultContainer.clear();
   });
 
@@ -149,7 +149,7 @@ describe('Constructor injection', () => {
       }
     }
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depTwo = defaultContainer.get(DependencyTwo);
     const depOne = depTwo.getDependencyOne();
@@ -174,7 +174,7 @@ describe('Constructor injection', () => {
       }
     }
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depTwo = defaultContainer.get(DEPENDENCY_TWO_NAME) as DependencyTwo;
     const depOne = depTwo.getDependencyOne();
@@ -196,7 +196,7 @@ describe('Constructor injection', () => {
       }
     }
 
-    const defaultContainer = Container.getDefault();
+    const defaultContainer = Container.getGlobal();
 
     const depTwo = defaultContainer.get(DependencyTwo);
     const depOne = depTwo.getDependencyOne();

@@ -62,9 +62,9 @@ class DependencyFour {
 ```
 
 
-Get default container, where all your injectable entities are stored
+Get global container, where all your injectable entities are stored
 ```ts
-const container = Container.getDefault();
+const container = Container.getGlobal();
 ```
 
 

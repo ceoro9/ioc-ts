@@ -12,7 +12,7 @@ export const InjectProperty: InjectionDecorator = (dependencyName?: string, cont
 
     return {
       get() {
-        const sourceContainer = container ?? Container.getDefault();
+        const sourceContainer = container ?? Container.getGlobal();
         return sourceContainer.get(dependencyIdentifier);
       },
     };

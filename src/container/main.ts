@@ -2,17 +2,17 @@ import * as Exceptions from '../exceptions';
 import { ConstructorT } from '../types';
 import { ContainerEntity } from './entity';
 
-let defaultContainer: Container | undefined;
+let globalContainer: Container | undefined;
 
 export class Container {
   /**
    * Container with all entities marked as injectable
    */
-  public static getDefault() {
-    if (!defaultContainer) {
-      defaultContainer = new Container();
+  public static getGlobal() {
+    if (!globalContainer) {
+      globalContainer = new Container();
     }
-    return defaultContainer;
+    return globalContainer;
   }
 
   private entities: { [entityName: string]: ContainerEntity | undefined };
