@@ -1,0 +1,35 @@
+language: node_js
+os: linux
+
+node_js:
+  - 13
+
+stages:
+- lint
+- compile
+- build
+- test
+- release
+
+jobs:
+  include:
+
+    - stage: lint
+      script: npm run lint
+
+    - stage: compile
+      script: npm run compile
+
+    - stage: build
+      script: npm run build
+
+    - stage: test
+      name: "Unit Tests"
+      script: npm run test
+
+    - stage: release
+      node_js: lts/*
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: npm run release
