@@ -6,76 +6,141 @@ Inversion of control container on TypeScript
 npm install @ceoro9/ioc-ts reflect-metadata --save
 ```
 
-# Usage
+# About
+`ioc-ts` is an implementation of inversion on control (IoC) container on TypeScript, that encourages declarational approarch, using decorators and reflection to comfortably and transperrently manage entities and their dependencies.
 
-Imports
+# Usage
+This short example just shows the basics, what `ioc-ts` container is really capable of. Please check out documetation, that will be avaiable soon, to find out more about more sophisticated functionality `ioc-ts` can offer you.
+
+### Step 0: Configure TypeScript compiler
+```json
+{
+  "compilerOptions": {
+    ...
+    "types": ["reflect-metadata"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  }
+}
+```
+
+### Step 1: Imports
 ```ts
 import 'reflect-metadata';
 import { Injectable, Inject, Container } from '@ceoro9/ioc-ts';
 ```
 
 
-Define your entities and mark them with *Injectable* decorator
+### Step 2: Declare your data types and service interfaces
 ```ts
-@Injectable()
-class DependencyOne {
-        
-  public talk() {
-    console.log(`Hello. I'm DependencyOne`);
+interface IPerson {
+  id:        string;
+  firstName: string;
+  lastName:  string;
+}
+
+interface IPersonService {
+  createPerson(person: Omit<IPerson, 'id'>): IPerson;
+  getPersonById(personId: string): IPerson | undefined;
+}
+```
+
+### Step 3: Declare your injectable entities, which implement the above service interface
+In our example we have two services, which implement `IPersonService` interface. The first one is PostgreSQL service and second one is MongoDB. Each one corresponds to the database, that it uses under the hood.
+```ts
+const PERSON_POSTGRES_SERVICE_NAME = 'PERSON_POSTGRES_SERVICE';
+const PERSON_MONGO_SERVICE_NAME    = 'PERSON_MONGO_SERVICE';
+
+@Injectable(PERSON_POSTGRES_SERVICE_NAME)
+class PersonPostgresService implements IPersonService {
+
+  private readonly db: { [id: string]: IPerson | undefined };
+
+  public constructor() {
+    this.db = {};
+  }
+
+  public createPerson(person: IPerson) {
+    const personId = Math.random().toString(36).substring(7);
+    this.db[personId] = person;
+    return {
+      ...person,
+      id: personId,
+    };
+  }
+
+  public getPersonById(personId: string) {
+    return this.db[personId];
   }
 }
 
+@Injectable(PERSON_MONGO_SERVICE_NAME)
+class PersonMongoService implements IPersonService {
 
-@Injectable()
-class DependencyTwo {
-    
-  public talk() {
-    console.log(`Hello. I'm DependencyTwo`);
+  private readonly db: Map<string, IPerson>;
+
+  public constructor() {
+    this.db = new Map();
+  }
+
+  public createPerson(person: IPerson) {
+    const personId = Math.random().toString(36).substring(10);
+    this.db.set(personId, person);
+    return {
+      ...person,
+      id: personId,
+    };
+  }
+
+  public getPersonById(personId: string) {
+    return this.db.get(personId);
   }
 }
 ```
 
-Then inject dependencies in the property with *Inject* decorator
+### Step 4: Make an injection
+And now we have a person controller, which wants to use some service to persist data, but don't want to know implementation details of how this data is persisted and stored. In other words, our person controller should depend upon service interface, but not its concrete implementation. That's why the type of `personService` property is `IPersonService` interface. But anyway, we should specify which concrete implementation of service interface `personService` should take from container. This is where we should make an injection by specifying entity name, which our controller should use. In our case this is property injection by `PERSON_POSTGRES_SERVICE_NAME` identifier. So in fact, our service will use PostgreSQL service to persist data, but it has no idea about this.
 ```ts
 @Injectable()
-class DependencyThree {
+class PersonController {
 
-  @Inject()
-  private depOne: DependencyOne;
+  @Inject(PERSON_POSTGRES_SERVICE_NAME)
+  private personService: IPersonService;
   
-  public talk() {
-    this.depOne.talk();    
+  public get(personId: string) {
+    const person = this.personService.getPersonById(personId);
+    return (
+      person
+      ? { status: 200, data: person }
+      : { status: 404, data: null }
+    );
+  }
+
+  public post(personData: Omit<IPerson, 'id'>) {
+    const person = this.personService.createPerson(personData);
+    return {
+      status: 201,
+      data: person,
+    };
   }
 }
 ```
 
-Or in the constructor
-```ts
-@Injectable()
-class DependencyFour {
-    
-  public constructor(private readonly depTwo: DependencyTwo) {}
-    
-  public talk() {
-    this.depTwo.talk();    
-  }
-}
-```
-
-
-Get global container, where all your injectable entities are stored
+### Step 5: Obtain reference to global container, where all your injectable entities are stored by default
 ```ts
 const container = Container.getGlobal();
 ```
 
-
+### Step 6: Get your entities with their resolved dependencies
 So you're done. Now you can safely and comfortably work with all of your entities. IoC container will take care of resolving and initializing of their dependencies.
 ```ts
-const depThree = container.get(DependencyThree);
-const depFour  = container.get(DependencyFour);
+const personController = container.get(PersonController);
 
-depThree.talk();  // output: Hello. I'm DependencyOne
-depFour.talk();   // output: Hello. I'm DependencyTwo
+const { data: { id: personId } } = personController.post({
+  firstName: 'firstName0',
+  lastName: 'lastName0',
+}); // { status: 201, data: { ... } }
+personController.get(personId); // { status: 200, data: { ... } }
 ```
 
 # License

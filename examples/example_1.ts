@@ -1,80 +1,104 @@
 import 'reflect-metadata';
 import { Injectable, Inject, Container } from '../src';
 
-@Injectable('Dependency_Zero')
-class DependencyZero {
+
+interface IPerson {
+  id:        string;
+  firstName: string;
+  lastName:  string;
+}
+
+interface IPersonService {
+  createPerson(person: Omit<IPerson, 'id'>): IPerson;
+  getPersonById(personId: string): IPerson | undefined;
+}
+
+
+const PERSON_POSTGRES_SERVICE_NAME = 'PERSON_POSTGRES_SERVICE';
+const PERSON_MONGO_SERVICE_NAME    = 'PERSON_MONGO_SERVICE';
+
+
+@Injectable(PERSON_POSTGRES_SERVICE_NAME)
+class PersonPostgresService implements IPersonService {
+
+  private readonly db: { [id: string]: IPerson | undefined };
+
   public constructor() {
-    console.log('DependencyZero::Constructor');
+    this.db = {};
   }
 
-  public sayHello() {
-    console.log('Hello_0');
+  public createPerson(person: IPerson) {
+    const personId = Math.random().toString(36).substring(7);
+    this.db[personId] = person;
+    return {
+      ...person,
+      id: personId,
+    };
+  }
+
+  public getPersonById(personId: string) {
+    return this.db[personId];
+  }
+}
+
+@Injectable(PERSON_MONGO_SERVICE_NAME)
+class PersonMongoService implements IPersonService {
+
+  private readonly db: Map<string, IPerson>;
+
+  public constructor() {
+    this.db = new Map();
+  }
+
+  public createPerson(person: IPerson) {
+    const personId = Math.random().toString(36).substring(10);
+    this.db.set(personId, person);
+    return {
+      ...person,
+      id: personId,
+    };
+  }
+
+  public getPersonById(personId: string) {
+    return this.db.get(personId);
   }
 }
 
 @Injectable()
-class DependencyOne {
-  public sayHello() {
-    console.log('Hello_1');
+class PersonController {
+
+  @Inject(PERSON_POSTGRES_SERVICE_NAME)
+  private personService: IPersonService;
+  
+  public get(personId: string) {
+    const person = this.personService.getPersonById(personId);
+    return (
+      person
+      ? { status: 200, data: person }
+      : { status: 404, data: null }
+    );
+  }
+
+  public post(personData: Omit<IPerson, 'id'>) {
+    const person = this.personService.createPerson(personData);
+    return {
+      status: 201,
+      data: person,
+    };
   }
 }
 
-@Injectable()
-class DependencyTwo {
-  public constructor(
-    @Inject('Dependency_Zero') private readonly depZero: DependencyZero,
-    private readonly depOne: DependencyOne,
-  ) {}
-
-  public sayHello() {
-    console.log('--- START Dependency_2 ---');
-    this.depZero.sayHello();
-    this.depOne.sayHello();
-    console.log('--- END Dependency_2 ---');
-  }
-}
-
-@Injectable()
-class A {
-  public click() {
-    console.log('CLICL FROM A');
-  }
-}
-
-@Injectable()
-class DependencyThree {
-  @Inject('Dependency_Zero')
-  public depZero: DependencyZero;
-
-  @Inject()
-  public depOne: DependencyOne;
-
-  @Inject()
-  public depTwo: DependencyTwo;
-
-  @Inject()
-  public nice: A;
-
-  public sayBye() {
-    console.log('--- START Dependency_3 ---');
-    this.depZero.sayHello();
-    this.depOne.sayHello();
-    this.depTwo.sayHello();
-    console.log('--- END Dependency_3 ---');
-  }
-}
 
 function main() {
+
   const container = Container.getGlobal();
+  const personController = container.get(PersonController);
 
-  const depTwo = container.get(DependencyTwo);
-  const depThree = container.get(DependencyThree);
-
-  console.log('----- DEP_2 -----');
-  depTwo.sayHello();
-
-  console.log('----- DEP_3 ------');
-  depThree.sayBye();
+  const { data: { id: personId } } = personController.post({
+    firstName: 'firstName0',
+    lastName: 'lastName0',
+  });
+  console.log(personController.get(personId));
 }
 
 main();
