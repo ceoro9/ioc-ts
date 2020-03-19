@@ -4,11 +4,9 @@ os: linux
 node_js:
   - 13
 
-stages:
-- build
-- test
-- name: release
-  if: branch = master
+branches:
+  only:
+    - "master"
 
 jobs:
   include:
@@ -29,6 +27,7 @@ jobs:
 
     - stage: release
       node_js: lts/*
+      script: skip
       deploy:
         provider: script
         skip_cleanup: true
