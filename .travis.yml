@@ -5,23 +5,23 @@ node_js:
   - 13
 
 stages:
-- lint
-- compile
 - build
 - test
-- release
+- name: release
+  if: branch = master
 
 jobs:
   include:
 
-    - stage: lint
-      script: npm run lint
-
-    - stage: compile
-      script: npm run compile
-
     - stage: build
-      script: npm run build
+      name: "Linting"
+      script: npm run lint
+    
+    - script: npm run compile
+      name: "Compiling"
+
+    - script: npm run build
+      name: "Building"
 
     - stage: test
       name: "Unit Tests"
