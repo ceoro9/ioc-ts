@@ -6,13 +6,13 @@
 export function copyFunctionMetadata(source: Function, destination: Function) {
   // copy main function properties
   destination.prototype = source.prototype;
-  Object.defineProperty(destination, 'length', {
-    writable: false,
-    value: source.length,
-  });
   Object.defineProperty(destination, 'name', {
     writable: false,
     value: source.name,
+  });
+  Object.defineProperty(destination, 'length', {
+    writable: false,
+    value: source.length,
   });
   // copy metadata
   Reflect.getMetadataKeys(source).forEach((metadataKey: any) => {
