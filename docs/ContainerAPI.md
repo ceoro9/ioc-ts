@@ -3,7 +3,7 @@ This document describes container options and methods, that can be used to fully
 
 ## Container initializtion
 ```ts
-import { Container } from 'ioc-ts';
+import { Container } from '@ceoro9/ioc-ts';
 
 const container = new Container();
 ```
