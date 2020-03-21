@@ -1,6 +1,6 @@
 # ioc-ts
 
-[![Build Status](https://travis-ci.org/ceoro9/ioc-ts.svg?branch=master)](https://travis-ci.org/ceoro9/ioc-ts)
+[![Build Status](https://travis-ci.org/ceoro9/ioc-ts.svg?branch=master)](https://travis-ci.org/ceoro9/ioc-ts) [![Coverage Status](https://coveralls.io/repos/github/ceoro9/ioc-ts/badge.svg?branch=chore/tests)](https://coveralls.io/github/ceoro9/ioc-ts?branch=chore/tests)
 
 Inversion of control container on TypeScript
 

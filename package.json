@@ -22,7 +22,8 @@
     "lint:fix": "npm run lint -- --fix",
     "test": "jest",
     "test:watch": "npm run test -- --watchAll",
-    "view:coverage": "serve coverage/lcov-report"
+    "view:coverage": "serve coverage/lcov-report",
+    "coveralls": "cat ./coverage/lcov.info | coveralls"
   },
   "keywords": [
     "ioc",
@@ -49,6 +50,7 @@
     "@typescript-eslint/parser": "^2.23.0",
     "babel-core": "^6.26.3",
     "babel-runtime": "^6.26.0",
+    "coveralls": "^3.0.11",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.2",
