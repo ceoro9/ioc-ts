@@ -9,5 +9,4 @@ Welcome to the `ioc-ts` documentation page
 - [Global Container](./GlobalContainer.md)
 - [Constructor Injection](./ConstructorInjection.md)
 - [Property Injection](./PropertyInjection.md)
-- [Implicit and Explicit Injection](./ImplicitAndExcplicitInjection.md)
 - [Custom Container](./CustomContainer.md)
