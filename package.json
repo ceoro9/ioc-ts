@@ -67,5 +67,9 @@
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3",
     "underscore.string": ">=3.3.5"
+  },
+  "resolutions": {
+    "underscore.string": ">=3.3.5",
+    "minimist": ">=1.2.2"
   }
 }
