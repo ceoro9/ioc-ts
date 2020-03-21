@@ -17,10 +17,12 @@
     "build": "rollup --config && npm run compile",
     "start": "rollup -c -w",
     "release": "semantic-release",
-    "clean": "rm -rf build/",
+    "clean": "rm -rf build/ coverage/ src/**/*.map",
     "lint": "eslint --ext ts,js,json .",
     "lint:fix": "npm run lint -- --fix",
-    "test": "jest"
+    "test": "jest",
+    "test:watch": "npm run test -- --watchAll",
+    "view:coverage": "serve coverage/lcov-report"
   },
   "keywords": [
     "ioc",
