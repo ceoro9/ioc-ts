@@ -1,0 +1,34 @@
+language: node_js
+os: linux
+
+node_js:
+  - 13
+
+branches:
+  only:
+    - "master"
+
+jobs:
+  include:
+
+    - stage: build
+      name: "Linting"
+      script: npm run lint
+    
+    - script: npm run compile
+      name: "Compiling"
+
+    - script: npm run build
+      name: "Building"
+
+    - stage: test
+      name: "Unit Tests"
+      script: npm run test
+
+    - stage: release
+      node_js: lts/*
+      script: skip
+      deploy:
+        provider: script
+        skip_cleanup: true
+        script: npm run release
