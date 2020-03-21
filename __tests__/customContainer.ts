@@ -1,12 +1,11 @@
 import { Inject, Injectable, Container } from '../src';
 
 describe('Injectable entities presence', () => {
-
   const customContainer = new Container();
 
   const CustomInjectable = (entityName?: string) => {
     return Injectable(entityName, customContainer);
-  }
+  };
 
   beforeEach(() => {
     // remove all entities from custom and global container
@@ -53,16 +52,15 @@ describe('Injectable entities presence', () => {
 });
 
 describe('Property injection', () => {
-
   const customContainer = new Container();
 
   const CustomInjectable = (entityName?: string) => {
     return Injectable(entityName, customContainer);
-  }
+  };
 
   const CustomInject = (entityName?: string) => {
     return Inject(entityName, customContainer);
-  }
+  };
 
   beforeEach(() => {
     // remove all entities from custom and global container
@@ -71,13 +69,11 @@ describe('Property injection', () => {
   });
 
   test('Implicit injection is resolved', () => {
-
     @CustomInjectable()
     class DependencyOne {}
 
     @CustomInjectable()
     class DependencyTwo {
-
       @CustomInject()
       private depOne: DependencyOne;
 
@@ -102,7 +98,6 @@ describe('Property injection', () => {
 
     @CustomInjectable(DEPENDENCY_TWO_NAME)
     class DependencyTwo {
-
       @CustomInject(DEPENDENCY_ONE_NAME)
       private depOne: DependencyOne;
 
@@ -120,16 +115,15 @@ describe('Property injection', () => {
 });
 
 describe('Constructor injection', () => {
-
   const customContainer = new Container();
 
   const CustomInjectable = (entityName?: string) => {
     return Injectable(entityName, customContainer);
-  }
+  };
 
   const CustomInject = (entityName?: string) => {
     return Inject(entityName, customContainer);
-  }
+  };
 
   beforeEach(() => {
     // remove all entities from custom and global container

@@ -1,11 +1,13 @@
 import 'reflect-metadata';
 import { Injectable, Inject, Container } from '../src';
 
+/* eslint-disable @typescript-eslint/interface-name-prefix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 interface IPerson {
-  id:        string;
+  id: string;
   firstName: string;
-  lastName:  string;
+  lastName: string;
 }
 
 interface IPersonService {
@@ -13,14 +15,11 @@ interface IPersonService {
   getPersonById(personId: string): IPerson | undefined;
 }
 
-
 const PERSON_POSTGRES_SERVICE_NAME = 'PERSON_POSTGRES_SERVICE';
-const PERSON_MONGO_SERVICE_NAME    = 'PERSON_MONGO_SERVICE';
-
+const PERSON_MONGO_SERVICE_NAME = 'PERSON_MONGO_SERVICE';
 
 @Injectable(PERSON_POSTGRES_SERVICE_NAME)
 class PersonPostgresService implements IPersonService {
-
   private readonly db: { [id: string]: IPerson | undefined };
 
   public constructor() {
@@ -28,7 +27,9 @@ class PersonPostgresService implements IPersonService {
   }
 
   public createPerson(person: IPerson) {
-    const personId = Math.random().toString(36).substring(7);
+    const personId = Math.random()
+      .toString(36)
+      .substring(7);
     this.db[personId] = person;
     return {
       ...person,
@@ -43,7 +44,6 @@ class PersonPostgresService implements IPersonService {
 
 @Injectable(PERSON_MONGO_SERVICE_NAME)
 class PersonMongoService implements IPersonService {
-
   private readonly db: Map<string, IPerson>;
 
   public constructor() {
@@ -51,7 +51,9 @@ class PersonMongoService implements IPersonService {
   }
 
   public createPerson(person: IPerson) {
-    const personId = Math.random().toString(36).substring(10);
+    const personId = Math.random()
+      .toString(36)
+      .substring(10);
     this.db.set(personId, person);
     return {
       ...person,
@@ -66,17 +68,12 @@ class PersonMongoService implements IPersonService {
 
 @Injectable()
 class PersonController {
-
   @Inject(PERSON_POSTGRES_SERVICE_NAME)
   private personService: IPersonService;
-  
+
   public get(personId: string) {
     const person = this.personService.getPersonById(personId);
-    return (
-      person
-      ? { status: 200, data: person }
-      : { status: 404, data: null }
-    );
+    return person ? { status: 200, data: person } : { status: 404, data: null };
   }
 
   public post(personData: Omit<IPerson, 'id'>) {
@@ -88,13 +85,13 @@ class PersonController {
   }
 }
 
-
 function main() {
-
   const container = Container.getGlobal();
   const personController = container.get(PersonController);
 
-  const { data: { id: personId } } = personController.post({
+  const {
+    data: { id: personId },
+  } = personController.post({
     firstName: 'firstName0',
     lastName: 'lastName0',
   });
