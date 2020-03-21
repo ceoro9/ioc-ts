@@ -23,7 +23,9 @@ jobs:
 
     - stage: test
       name: "Unit Tests"
-      script: npm run test
+      script:
+       - npm run test
+       - npm run coveralls
 
     - stage: release
       node_js: lts/*

@@ -21,6 +21,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*", "examples/**/*"],
-  "exclude": ["node_modules", "build", "examples", "rollup.config.js"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "build", "examples", "rollup.config.js", "tests", "**/*.test.ts", "**/*.spec.ts"]
 }

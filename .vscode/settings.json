@@ -1,0 +1,7 @@
+{
+    "jest.pathToJest": "npm run test:watch",
+    "jest.pathToConfig": "jest.config.cjs",
+    "jest.runAllTestsFirst": false,
+    "jest.showCoverageOnLoad": true,
+    "jest.debugMode": true
+}
