@@ -1,6 +1,9 @@
 import 'reflect-metadata';
 import { Injectable, Inject, Container } from '../src';
 
+/* eslint-disable @typescript-eslint/interface-name-prefix */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 interface IPerson {
   id: string;
   firstName: string;
@@ -14,8 +17,6 @@ interface IPersonService {
 
 const PERSON_POSTGRES_SERVICE_NAME = 'PERSON_POSTGRES_SERVICE';
 const PERSON_MONGO_SERVICE_NAME = 'PERSON_MONGO_SERVICE';
-
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 @Injectable(PERSON_POSTGRES_SERVICE_NAME)
 class PersonPostgresService implements IPersonService {
