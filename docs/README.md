@@ -5,6 +5,7 @@ Welcome to the `ioc-ts` documentation page
 
 - [Entity Declaration](./EntityDeclaration.md)
 - [Container API](./ContainerAPI.md)
+- [Decorators API](./DecoratorsAPI.md)
 - [Global Container](./GlobalContainer.md)
 - [Constructor Injection](./ConstructorInjection.md)
 - [Property Injection](./PropertyInjection.md)
