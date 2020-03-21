@@ -7,7 +7,7 @@ import { Container } from '../container';
  * Marks class entity as injectable
  * @param dependencyName
  */
-export function Injectable(dependencyName?: string) {
+export function Injectable(dependencyName?: string, container?: Container) {
   return function(target: any) {
     // marks constructor as injectable
     target[Constants.InjectableKey] = true;
@@ -35,12 +35,21 @@ export function Injectable(dependencyName?: string) {
     // copies metadata
     copyFunctionMetadata(original, newCtor);
 
-    // adds entity(new constructor) to default container
-    const defaultContainer = Container.getGlobal();
+    // adds entity(new constructor) to global container
+    const globalContainer = Container.getGlobal();
     if (dependencyName) {
-      defaultContainer.bind(dependencyName, newCtor);
+      globalContainer.bind(dependencyName, newCtor);
     } else {
-      defaultContainer.bind(newCtor);
+      globalContainer.bind(newCtor);
+    }
+
+    // adds entity to the specified container
+    if (container) {
+      if (dependencyName) {
+        container.bind(dependencyName, newCtor);
+      } else {
+        container.bind(newCtor);
+      }
     }
 
     // returns new constructor (will override original)

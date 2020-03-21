@@ -15,35 +15,35 @@ export class Container {
     return globalContainer;
   }
 
-  private entities: { [entityName: string]: Entity | undefined };
+  private entityBindings: { [name: string]: Entity | undefined };
 
   public constructor() {
-    this.entities = {};
+    this.entityBindings = {};
   }
 
   /**
-   * Add entity to container
+   * Adds an entity binding
    */
   public bind(ctor: ConstructorT): void;
-  public bind(name: string, ctor: ConstructorT): void;
+  public bind(bindingName: string, ctor: ConstructorT): void;
   public bind(identifier: ConstructorT | string, constructor?: ConstructorT) {
-    const { entityName, ctor } = this.decodeEntityIdentifier(identifier, constructor);
+    const { bindingName, ctor } = this.decodeEntityBindingIdentifier(identifier, constructor);
 
-    if (this.getEntity(entityName)) {
+    if (this.getEntityBinding(bindingName)) {
       throw new Exceptions.EntityAlreadyBindedException();
     }
 
-    this.addEntity(entityName, ctor);
+    this.addEntityBinding(bindingName, ctor);
   }
 
   /**
-   * Gets entity instance from container
+   * Gets an instance of entity binding
    */
   public get<T>(ctor: ConstructorT<T>): T;
-  public get(entityName: string): any;
+  public get(bindingName: string): any;
   public get(identifier: ConstructorT | string) {
-    const { entityName } = this.decodeEntityIdentifier(identifier);
-    const entity = this.getEntity(entityName);
+    const { bindingName } = this.decodeEntityBindingIdentifier(identifier);
+    const entity = this.getEntityBinding(bindingName);
 
     if (!entity) {
       throw new Exceptions.UnknownDependencyException();
@@ -53,69 +53,69 @@ export class Container {
   }
 
   /**
-   * Sets entity value(adds new, if does not exist)
+   * Sets a new entity binding instance(adds new, if does not exist)
    */
   public set<T extends Record<string, any>>(ctor: ConstructorT<T>, newValue: T): void;
-  public set(entityName: string, newValue: Record<string, any>): void;
+  public set(bindingName: string, newValue: Record<string, any>): void;
   public set<T extends Record<string, any>>(identifier: ConstructorT<T> | string, newValue: T) {
-    const { entityName } = this.decodeEntityIdentifier(identifier);
-    let entity = this.getEntity(entityName);
+    const { bindingName } = this.decodeEntityBindingIdentifier(identifier);
+    let entity = this.getEntityBinding(bindingName);
 
     if (!entity) {
       const ctor = typeof identifier === 'function' ? identifier : (newValue.constructor as ConstructorT);
-      entity = this.addEntity(entityName, ctor);
+      entity = this.addEntityBinding(bindingName, ctor);
     }
 
     entity.setValue(newValue);
   }
 
   /**
-   * Removes entity from container
+   * Removes an entity binding
    */
   public remove<T>(ctor: ConstructorT<T>): T;
-  public remove(entityName: string): any;
+  public remove(bindingName: string): any;
   public remove(identifier: ConstructorT | string) {
-    const { entityName } = this.decodeEntityIdentifier(identifier);
+    const { bindingName } = this.decodeEntityBindingIdentifier(identifier);
 
-    if (!this.getEntity(entityName)) {
+    if (!this.getEntityBinding(bindingName)) {
       throw new Exceptions.EntityDoesNotExistException();
     }
 
-    this.removeEntity(entityName);
+    this.removeEntityBinding(bindingName);
   }
 
   /**
-   * Removes all entities
+   * Removes all entity bindins
    */
   public clear() {
-    Object.keys(this.entities).forEach(entityName => this.removeEntity(entityName));
+    Object.keys(this.entityBindings).forEach(bindingName => this.removeEntityBinding(bindingName));
   }
 
-  private decodeEntityIdentifier(identifier: ConstructorT | string, constructor?: ConstructorT) {
-    let entityName: string, ctor: ConstructorT;
+  private decodeEntityBindingIdentifier(identifier: ConstructorT | string, constructor?: ConstructorT) {
+    let bindingName: string, ctor: ConstructorT;
 
     if (typeof identifier === 'string') {
-      entityName = identifier;
+      bindingName = identifier;
       ctor = constructor!; // eslint-disable-line @typescript-eslint/no-non-null-assertion
     } else {
-      entityName = identifier.name;
+      bindingName = identifier.name;
       ctor = identifier;
     }
 
-    return { entityName, ctor };
+    return { bindingName, ctor };
   }
 
-  private addEntity(entityName: string, ctor: ConstructorT) {
-    const entity = new Entity(entityName, ctor, this);
-    this.entities[entityName] = entity;
+  private addEntityBinding(bindingName: string, ctor: ConstructorT) {
+    const entity = new Entity(bindingName, ctor, this);
+    this.entityBindings[bindingName] = entity;
     return entity;
   }
 
-  public getEntity(entityName: string) {
-    return this.entities[entityName];
+  public getEntityBinding(bindingName: string) {
+    return this.entityBindings[bindingName];
   }
 
-  public removeEntity(entityName: string) {
-    delete this.entities[entityName];
+  public removeEntityBinding(bindingName: string) {
+    delete this.entityBindings[bindingName];
   }
 }

@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Inject, Injectable, Container } from '../src';
 
 describe('Injectable entities presence', () => {
