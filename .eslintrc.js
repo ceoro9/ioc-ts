@@ -8,6 +8,7 @@ module.exports =  {
   ignorePatterns: [
     "node_modules/",
     "build/",
+    "package-lock.json"
   ],
   parserOptions:  {
     ecmaVersion:  2018,
