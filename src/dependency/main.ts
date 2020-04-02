@@ -22,10 +22,10 @@ export class Dependency<T = any> {
    * @param ctor
    * @param container
    */
-  public static constructEntityInstance(ctor: ConstructorT, container: Container) {
+  public static constructEntityInstance<T>(ctor: ConstructorT<T>, container: Container) {
     const deps = constructEntityConstructorDependencies(ctor, container);
     const result = new ctor(...deps);
-    return createDependencyProxyObject(result);
+    return createDependencyProxyObject(result as any) as T;
   }
 
   public resolve() {

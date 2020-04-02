@@ -1,6 +1,8 @@
 import * as Exceptions from '../exceptions';
 import { ConstructorT } from '../types';
-import { Entity } from './entity';
+import { BaseEntity, SyncEntity, AsyncEntity, isAsyncEntity } from './entity';
+import { AsyncInjectableInstance } from './types';
+import { EntityDoesNotExistException } from '../exceptions';
 
 let globalContainer: Container | undefined;
 
@@ -15,25 +17,43 @@ export class Container {
     return globalContainer;
   }
 
-  private entityBindings: { [name: string]: Entity | undefined };
+  public entityBindings: { [name: string]: BaseEntity<any> | undefined };
 
   public constructor() {
     this.entityBindings = {};
   }
 
   /**
-   * Adds an entity binding
+   * Adds a sync entity binding
    */
-  public bind(ctor: ConstructorT): void;
-  public bind(bindingName: string, ctor: ConstructorT): void;
-  public bind(identifier: ConstructorT | string, constructor?: ConstructorT) {
+  public bind<T>(ctor: ConstructorT<T>): void;
+  public bind<T>(bindingName: string, ctor: ConstructorT<T>): void;
+  public bind<T>(identifier: ConstructorT | string, constructor?: ConstructorT<T>) {
     const { bindingName, ctor } = this.decodeEntityBindingIdentifier(identifier, constructor);
 
     if (this.getEntityBinding(bindingName)) {
       throw new Exceptions.EntityAlreadyBindedException();
     }
 
-    this.addEntityBinding(bindingName, ctor);
+    this.addSyncEntityBinding(bindingName, ctor);
+  }
+
+  /**
+   * Adds an async entity binding
+   */
+  public bindAsync<T extends AsyncInjectableInstance>(ctor: ConstructorT<T>): void;
+  public bindAsync<T extends AsyncInjectableInstance>(bindingName: string, ctor: ConstructorT<T>): void;
+  public bindAsync<T extends AsyncInjectableInstance>(
+    identifier: ConstructorT<T> | string,
+    constructor?: ConstructorT<T>,
+  ) {
+    const { bindingName, ctor } = this.decodeEntityBindingIdentifier(identifier, constructor);
+
+    if (this.getEntityBinding(bindingName)) {
+      throw new Exceptions.EntityAlreadyBindedException();
+    }
+
+    this.addAsyncEntityBinding(bindingName, ctor);
   }
 
   /**
@@ -49,7 +69,7 @@ export class Container {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    return entity.getValue();
+    return entity.getEntityValue();
   }
 
   /**
@@ -63,7 +83,7 @@ export class Container {
 
     if (!entity) {
       const ctor = typeof identifier === 'function' ? identifier : (newValue.constructor as ConstructorT);
-      entity = this.addEntityBinding(bindingName, ctor);
+      entity = this.addSyncEntityBinding(bindingName, ctor);
     }
 
     entity.setValue(newValue);
@@ -91,8 +111,27 @@ export class Container {
     Object.keys(this.entityBindings).forEach(bindingName => this.removeEntityBinding(bindingName));
   }
 
-  private decodeEntityBindingIdentifier(identifier: ConstructorT | string, constructor?: ConstructorT) {
-    let bindingName: string, ctor: ConstructorT;
+  public setUpEntities() {
+    this.getEntities().forEach(entity => {
+      if (isAsyncEntity(entity)) {
+        throw new Error('Your container has an async entity.' + 'Use `setUpAsyncEntities` to setup container.');
+      }
+
+      return entity.getEntityValue();
+    });
+  }
+
+  public async setUpAsyncEntities() {
+    const entityValues = this.getEntities().map(entity => entity.getEntityValue());
+    await Promise.all(entityValues);
+  }
+
+  private getEntities() {
+    return Object.keys(this.entityBindings).map(bindingName => this.getEntityBindingStrict(bindingName));
+  }
+
+  private decodeEntityBindingIdentifier<T>(identifier: ConstructorT<T> | string, constructor?: ConstructorT<T>) {
+    let bindingName: string, ctor: ConstructorT<T>;
 
     if (typeof identifier === 'string') {
       bindingName = identifier;
@@ -105,14 +144,28 @@ export class Container {
     return { bindingName, ctor };
   }
 
-  private addEntityBinding(bindingName: string, ctor: ConstructorT) {
-    const entity = new Entity(bindingName, ctor, this);
+  private addSyncEntityBinding(bindingName: string, ctor: ConstructorT) {
+    const entity = new SyncEntity(bindingName, ctor, this);
+    this.entityBindings[bindingName] = entity;
+    return entity;
+  }
+
+  private addAsyncEntityBinding<T extends AsyncInjectableInstance>(bindingName: string, ctor: ConstructorT<T>) {
+    const entity = new AsyncEntity(bindingName, ctor, this);
     this.entityBindings[bindingName] = entity;
     return entity;
   }
 
   public getEntityBinding(bindingName: string) {
     return this.entityBindings[bindingName];
+  }
+
+  public getEntityBindingStrict(bindingName: string) {
+    const result = this.getEntityBinding(bindingName);
+    if (!result) {
+      throw new EntityDoesNotExistException();
+    }
+    return result;
   }
 
   public removeEntityBinding(bindingName: string) {

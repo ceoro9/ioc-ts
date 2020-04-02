@@ -1,8 +1,8 @@
 import * as Exceptions from './exceptions';
 import { Dependency } from './dependency';
 
-export function createDependencyProxyObject<T extends object>(proxifiedObject: object): T {
-  return new Proxy(proxifiedObject, {
+export function createDependencyProxyObject<T>(proxifiedObject: T): T {
+  return new Proxy(proxifiedObject as any, {
     get(target: any, propKey: string) {
       const result = Reflect.get(target, propKey);
 
@@ -13,7 +13,7 @@ export function createDependencyProxyObject<T extends object>(proxifiedObject: o
 
       const container = result.getContainer();
       const identifier = result.getIdentifier();
-      const value = container.getEntityBinding(identifier)?.getValue();
+      const value = container.getEntityBinding(identifier)?.getEntityValue();
 
       if (!value) {
         throw new Exceptions.UnresolvedDependencyException(result);

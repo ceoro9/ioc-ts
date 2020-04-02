@@ -19,6 +19,7 @@ const PERSON_POSTGRES_SERVICE_NAME = 'PERSON_POSTGRES_SERVICE';
 const PERSON_MONGO_SERVICE_NAME = 'PERSON_MONGO_SERVICE';
 
 @Injectable(PERSON_POSTGRES_SERVICE_NAME)
+// @ts-ignore
 class PersonPostgresService implements IPersonService {
   private readonly db: { [id: string]: IPerson | undefined };
 
@@ -43,6 +44,7 @@ class PersonPostgresService implements IPersonService {
 }
 
 @Injectable(PERSON_MONGO_SERVICE_NAME)
+// @ts-ignore
 class PersonMongoService implements IPersonService {
   private readonly db: Map<string, IPerson>;
 
@@ -67,6 +69,7 @@ class PersonMongoService implements IPersonService {
 }
 
 @Injectable()
+// @ts-ignore
 class PersonController {
   @Inject(PERSON_POSTGRES_SERVICE_NAME)
   private personService: IPersonService;
