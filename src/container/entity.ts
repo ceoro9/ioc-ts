@@ -1,13 +1,14 @@
 import { ConstructorT } from '../types';
 import { Container } from './main';
 import { Dependency } from '../dependency';
-import { AsyncInjectableInstance } from './types';
+import { AsyncInjectableEntity } from './types';
 
 /**
  * Base entity, which store an entity instance value or its promise
  */
 export abstract class BaseEntity<T> {
-  private value: T;
+
+  private value?: T;
 
   public constructor(
     private readonly name: string | undefined,
@@ -15,7 +16,11 @@ export abstract class BaseEntity<T> {
     private readonly container: Container,
   ) {}
 
-  abstract getEntityValue(): T | Promise<T>;
+  abstract resolve(): T | Promise<T>;
+
+  public isResolved() {
+    return !!this.value;
+  }
 
   public getConstructor() {
     return this.constructor;
@@ -47,7 +52,7 @@ export abstract class BaseEntity<T> {
  * Entity, that stores a sync injectable entity instance
  */
 export class SyncEntity<T = any> extends BaseEntity<T> {
-  public getEntityValue() {
+  public resolve() {
     const ctor = this.getConstructor();
     const container = this.getContainer();
     let value = this.getValue();
@@ -64,8 +69,8 @@ export class SyncEntity<T = any> extends BaseEntity<T> {
 /**
  * Entity, that stores an async injectable entity instance
  */
-export class AsyncEntity<T extends AsyncInjectableInstance> extends BaseEntity<T> {
-  public async getEntityValue() {
+export class AsyncEntity<T extends AsyncInjectableEntity> extends BaseEntity<T> {
+  public async resolve() {
     const ctor = this.getConstructor();
     const container = this.getContainer();
     let value = this.getValue();

@@ -1,7 +1,7 @@
 import * as Exceptions from '../exceptions';
 import { ConstructorT } from '../types';
 import { BaseEntity, SyncEntity, AsyncEntity, isAsyncEntity } from './entity';
-import { AsyncInjectableInstance } from './types';
+import { AsyncInjectableEntity } from './types';
 import { EntityDoesNotExistException } from '../exceptions';
 
 let globalContainer: Container | undefined;
@@ -41,9 +41,9 @@ export class Container {
   /**
    * Adds an async entity binding
    */
-  public bindAsync<T extends AsyncInjectableInstance>(ctor: ConstructorT<T>): void;
-  public bindAsync<T extends AsyncInjectableInstance>(bindingName: string, ctor: ConstructorT<T>): void;
-  public bindAsync<T extends AsyncInjectableInstance>(
+  public bindAsync<T extends AsyncInjectableEntity>(ctor: ConstructorT<T>): void;
+  public bindAsync<T extends AsyncInjectableEntity>(bindingName: string, ctor: ConstructorT<T>): void;
+  public bindAsync<T extends AsyncInjectableEntity>(
     identifier: ConstructorT<T> | string,
     constructor?: ConstructorT<T>,
   ) {
@@ -69,7 +69,11 @@ export class Container {
       throw new Exceptions.UnknownDependencyException();
     }
 
-    return entity.getEntityValue();
+    if (entity.isResolved()) {
+      return entity.getValue();
+    }
+
+    return entity.resolve();
   }
 
   /**
@@ -113,16 +117,20 @@ export class Container {
 
   public setUpEntities() {
     this.getEntities().forEach(entity => {
+
       if (isAsyncEntity(entity)) {
-        throw new Error('Your container has an async entity.' + 'Use `setUpAsyncEntities` to setup container.');
+        throw new Error(
+          `Your container has an async entity.
+           Use 'setUpAsyncEntities' to setup container.`
+        );
       }
 
-      return entity.getEntityValue();
+      return entity.resolve();
     });
   }
 
   public async setUpAsyncEntities() {
-    const entityValues = this.getEntities().map(entity => entity.getEntityValue());
+    const entityValues = this.getEntities().map(entity => entity.resolve());
     await Promise.all(entityValues);
   }
 
@@ -150,7 +158,7 @@ export class Container {
     return entity;
   }
 
-  private addAsyncEntityBinding<T extends AsyncInjectableInstance>(bindingName: string, ctor: ConstructorT<T>) {
+  private addAsyncEntityBinding<T extends AsyncInjectableEntity>(bindingName: string, ctor: ConstructorT<T>) {
     const entity = new AsyncEntity(bindingName, ctor, this);
     this.entityBindings[bindingName] = entity;
     return entity;

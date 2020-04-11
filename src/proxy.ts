@@ -13,7 +13,13 @@ export function createDependencyProxyObject<T>(proxifiedObject: T): T {
 
       const container = result.getContainer();
       const identifier = result.getIdentifier();
-      const value = container.getEntityBinding(identifier)?.getEntityValue();
+      const entity = container.getEntityBinding(identifier);
+
+      if (entity && entity.isResolved()) {
+        return entity.getValue();
+      }
+
+      const value = entity?.resolve();
 
       if (!value) {
         throw new Exceptions.UnresolvedDependencyException(result);

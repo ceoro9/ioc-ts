@@ -1,2 +1,2 @@
-export { Container } from './container';
-export { Injectable, Inject } from './decorators';
+export { Container, AsyncInjectableEntity } from './container';
+export { Injectable, AsyncInjectalble, Inject } from './decorators';

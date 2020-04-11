@@ -3,7 +3,7 @@ import { copyFunctionMetadata } from '../utils';
 import { constructEntityInstance } from './utils';
 import { Container } from '../container';
 import { ConstructorT } from '../types';
-import { AsyncInjectableInstance, AddContainerBinding } from '../container/types';
+import { AsyncInjectableEntity, AddContainerBinding } from '../container/types';
 
 const BaseInjectable = (dependencyName?: string, customContainer?: Container) => {
   return function<T>(target: ConstructorT<T>, addBindingToContainer: (container: Container) => AddContainerBinding) {
@@ -63,8 +63,8 @@ export const Injectable = (dependencyName?: string, customContainer?: Container)
  * @param dependencyName
  * @param container
  */
-export const AsyncInjectalbe = (dependencyName?: string, customContainer?: Container) => {
-  return function<T extends AsyncInjectableInstance>(target: ConstructorT<T>) {
+export const AsyncInjectalble = (dependencyName?: string, customContainer?: Container) => {
+  return function<T extends AsyncInjectableEntity>(target: ConstructorT<T>) {
     const targetDecorator = BaseInjectable(dependencyName, customContainer);
     return targetDecorator(target, (container: Container) => container.bindAsync.bind(container));
   };
